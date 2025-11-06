@@ -84,7 +84,7 @@ jobs:
         ./docxsmith help
 
     - name: Upload artifact
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v5
       with:
         name: docxsmith-linux-amd64
         path: docxsmith
