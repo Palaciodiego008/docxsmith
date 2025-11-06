@@ -107,20 +107,24 @@ func (d *Document) ReplaceText(oldText, newText string) int {
 }
 
 // ReplaceTextInParagraph replaces text in a specific paragraph
-func (d *Document) ReplaceTextInParagraph(index int, oldText, newText string) error {
+func (d *Document) ReplaceTextInParagraph(index int, oldText, newText string) (int, error) {
 	if index < 0 || index >= len(d.Body.Paragraphs) {
-		return fmt.Errorf("paragraph index %d out of range", index)
+		return 0, fmt.Errorf("paragraph index %d out of range", index)
 	}
 
+	count := 0
 	p := &d.Body.Paragraphs[index]
 	for j := range p.Runs {
 		for k := range p.Runs[j].Text {
 			text := &p.Runs[j].Text[k]
-			text.Content = strings.ReplaceAll(text.Content, oldText, newText)
+			if strings.Contains(text.Content, oldText) {
+				text.Content = strings.ReplaceAll(text.Content, oldText, newText)
+				count++
+			}
 		}
 	}
 
-	return nil
+	return count, nil
 }
 
 // Clear removes all paragraphs and tables from the document

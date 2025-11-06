@@ -169,9 +169,13 @@ func TestReplaceTextInParagraph(t *testing.T) {
 	doc.AddParagraph("Hello world")
 	doc.AddParagraph("Hello again")
 
-	err := doc.ReplaceTextInParagraph(0, "Hello", "Hi")
+	count, err := doc.ReplaceTextInParagraph(0, "Hello", "Hi")
 	if err != nil {
 		t.Fatalf("Error replacing text: %v", err)
+	}
+
+	if count != 1 {
+		t.Errorf("Expected 1 replacement, got %d", count)
 	}
 
 	text0, _ := doc.GetParagraphText(0)
