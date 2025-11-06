@@ -77,7 +77,11 @@ func HandleFind(args []string) {
 
 	fmt.Printf("Found '%s' in %d paragraph(s):\n", *text, len(indices))
 	for _, idx := range indices {
-		text, _ := doc.GetParagraphText(idx)
+		text, err := doc.GetParagraphText(idx)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "  Paragraph %d: Error retrieving text: %v\n", idx, err)
+			continue
+		}
 		preview := text
 		if len(preview) > 80 {
 			preview = preview[:77] + "..."
