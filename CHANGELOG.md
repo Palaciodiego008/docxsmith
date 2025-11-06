@@ -5,6 +5,15 @@ All notable changes to DocxSmith will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Changed
+- Refactored CLI architecture for better maintainability
+  - Moved command logic from `cmd/docxsmith/main.go` to `internal/cli` package
+  - Separated commands into logical files: `create.go`, `content.go`, `text.go`, `table.go`, `info.go`
+  - main.go now only 12 lines (minimal entry point)
+  - Improved code organization following Go best practices
+
 ## [1.0.0] - 2025-11-05
 
 ### Added
