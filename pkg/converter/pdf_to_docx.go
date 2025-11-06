@@ -60,13 +60,19 @@ func (c *PDFToDocx) Convert(pdfDoc *pdf.Document, outputPath string) error {
 			case pdf.TableContent:
 				// Convert table
 				if len(c.Rows) > 0 {
-					table := docxDoc.AddTable(len(c.Rows), len(c.Rows[0]))
+					// Find maximum column count across all rows
+					maxCols := 0
+					for _, row := range c.Rows {
+						if len(row) > maxCols {
+							maxCols = len(row)
+						}
+					}
+
+					table := docxDoc.AddTable(len(c.Rows), maxCols)
 
 					for i, row := range c.Rows {
 						for j, cell := range row {
-							if j < len(row) {
-								table.SetCellText(i, j, cell)
-							}
+							table.SetCellText(i, j, cell)
 						}
 					}
 				}
