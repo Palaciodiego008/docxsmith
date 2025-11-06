@@ -1,11 +1,12 @@
 # DocxSmith - The Document Forge
 
 <p align="center">
-  <strong>A powerful and elegant Go library and CLI tool for manipulating .docx files</strong>
+  <strong>A powerful and elegant Go library and CLI tool for manipulating .docx and .pdf files</strong>
 </p>
 
 ## Features
 
+### DOCX Support
 - **Create** new .docx documents from scratch
 - **Read** and parse existing .docx files
 - **Modify** document content programmatically
@@ -14,8 +15,22 @@
 - **Find** and **replace** text throughout documents
 - **Tables** support (create, modify, delete)
 - **Extract** text content from documents
+
+### PDF Support ✨ NEW
+- **Create** new PDF documents from scratch
+- **Read** and parse existing PDF files
+- **Add** text content with styling (bold, italic, colors, sizes)
+- **Extract** text from PDFs
+- **Tables** support in PDF generation
+- **Metadata** management (title, author, subject)
+
+### Format Conversion
+- **Convert** DOCX to PDF with formatting preservation
+- **Convert** PDF to DOCX for editing
+
+### Additional Features
 - **CLI tool** for command-line operations
-- **Zero dependencies** for core functionality
+- **Scalable architecture** for easy extension
 - **Well-tested** with comprehensive test coverage
 
 ## Installation
@@ -70,6 +85,7 @@ func main() {
 
 ### Using the CLI
 
+#### DOCX Operations
 ```bash
 # Create a new document
 docxsmith create -output hello.docx -text "Hello, World!"
@@ -88,6 +104,33 @@ docxsmith extract -input hello.docx
 
 # Create a table
 docxsmith table -input hello.docx -output table.docx -create -rows 3 -cols 4
+```
+
+#### PDF Operations ✨
+```bash
+# Create a new PDF
+docxsmith pdf-create -output hello.pdf -text "Hello PDF!" -title "My Document"
+
+# Add content to a PDF
+docxsmith pdf-add -input hello.pdf -output hello2.pdf -text "New content" -bold -size 14
+
+# Extract text from PDF
+docxsmith pdf-extract -input document.pdf
+
+# Get PDF information
+docxsmith pdf-info -input document.pdf
+```
+
+#### Format Conversion
+```bash
+# Convert DOCX to PDF
+docxsmith convert -input document.docx -output document.pdf
+
+# Convert PDF to DOCX
+docxsmith convert -input document.pdf -output document.docx
+
+# Convert with custom options
+docxsmith convert -input doc.docx -output doc.pdf -font-size 14 -font-family "Times"
 ```
 
 ## Library API
@@ -207,6 +250,72 @@ err := doc.SaveAs("copy.docx")
 
 // Get document as bytes
 data, err := doc.ToBytes()
+```
+
+## PDF Library API ✨
+
+### Creating PDF Documents
+
+```go
+import "github.com/Palaciodiego008/docxsmith/pkg/pdf"
+
+// Create a new PDF
+pdfDoc := pdf.New()
+
+// Set metadata
+pdfDoc.SetMetadata("My Document", "Author Name", "Subject")
+
+// Add a page
+page := pdfDoc.AddPage()
+
+// Add text
+page.AddText("Hello PDF", 20, 30, 12)
+
+// Add styled text
+style := pdf.TextStyle{
+    FontSize:   14,
+    FontFamily: "Arial",
+    Bold:       true,
+    Italic:     false,
+    Color:      "FF0000", // Red
+}
+page.AddTextStyled("Important Text", 20, 50, style)
+
+// Save
+pdfDoc.Save("output.pdf")
+```
+
+### Reading PDF Documents
+
+```go
+// Open existing PDF
+pdfDoc, err := pdf.Open("document.pdf")
+
+// Get page count
+pageCount := pdfDoc.GetPageCount()
+
+// Extract all text
+text := pdfDoc.GetAllText()
+
+// Get specific page
+page, err := pdfDoc.GetPage(0)
+pageText := page.GetText()
+```
+
+### Converting Between Formats
+
+```go
+import "github.com/Palaciodiego008/docxsmith/pkg/converter"
+
+// Convert DOCX to PDF
+opts := converter.DefaultOptions()
+opts.FontSize = 12
+opts.FontFamily = "Arial"
+
+err := converter.ConvertDocxToPDF("input.docx", "output.pdf", opts)
+
+// Convert PDF to DOCX
+err := converter.ConvertPDFToDocx("input.pdf", "output.docx", opts)
 ```
 
 ## CLI Commands
