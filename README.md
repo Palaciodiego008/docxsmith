@@ -4,6 +4,21 @@
   <strong>A powerful and elegant Go library and CLI tool for manipulating .docx and .pdf files</strong>
 </p>
 
+<p align="center">
+  <a href="https://github.com/Palaciodiego008/docxsmith/actions/workflows/ci.yml">
+    <img src="https://github.com/Palaciodiego008/docxsmith/workflows/CI/badge.svg" alt="CI Status">
+  </a>
+  <a href="https://goreportcard.com/report/github.com/Palaciodiego008/docxsmith">
+    <img src="https://goreportcard.com/badge/github.com/Palaciodiego008/docxsmith" alt="Go Report Card">
+  </a>
+  <a href="https://pkg.go.dev/github.com/Palaciodiego008/docxsmith">
+    <img src="https://pkg.go.dev/badge/github.com/Palaciodiego008/docxsmith.svg" alt="Go Reference">
+  </a>
+  <a href="https://github.com/Palaciodiego008/docxsmith/blob/main/LICENSE">
+    <img src="https://img.shields.io/github/license/Palaciodiego008/docxsmith" alt="License">
+  </a>
+</p>
+
 ## Features
 
 ### DOCX Support

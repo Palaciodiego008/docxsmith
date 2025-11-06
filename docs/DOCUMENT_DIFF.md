@@ -248,7 +248,7 @@ docxsmith diff \
 echo "Change report generated: reports/changes_$DATE.html"
 ```
 
-## Architecture (Senior Developer Design)
+## Architecture
 
 ### Clean Separation of Concerns
 

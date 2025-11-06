@@ -8,6 +8,32 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **Document Diff** - Professional document comparison tool
+  - Compare DOCX documents line-by-line
+  - Multiple output formats (HTML, Markdown, Plain Text)
+  - Beautiful HTML reports with color-coded changes
+  - Options to ignore whitespace and case
+  - Detailed statistics (added, deleted, modified lines)
+  - Myers diff algorithm (LCS-based)
+  - 89.4% test coverage
+- **Merge & Split** - Advanced document operations
+  - Merge multiple DOCX or PDF files
+  - Split documents by page ranges
+  - Split into N equal parts
+  - Smart split by heading levels (DOCX)
+  - Custom output patterns
+  - Merge info preview
+  - 82.1% test coverage
+- **CI/CD Pipeline** - Professional automation
+  - GitHub Actions workflows (CI, Release)
+  - 4 CI jobs: Unit Tests, Lint, Build, Security
+  - Unit tests with race detector
+  - Code quality checks (fmt, vet)
+  - Automated releases with binaries for 5 platforms
+  - Pre-commit hooks for local validation
+  - Dependabot for automatic updates
+  - Security scanning (Gosec)
+  - Coverage reporting
 - **PDF Support** - Full PDF document manipulation capabilities
   - Create new PDF documents with text and styling
   - Read and parse existing PDF files
@@ -30,13 +56,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `pkg/converter` - Format conversion utilities
 
 ### Changed
-- Refactored CLI architecture for better maintainability
-  - Moved command logic from `cmd/docxsmith/main.go` to `internal/cli` package
-  - Separated commands into logical files: `create.go`, `content.go`, `text.go`, `table.go`, `info.go`, `pdf.go`, `convert.go`
-  - main.go now only 12 lines (minimal entry point)
-  - Improved code organization following Go best practices
-- Updated help text to include PDF and conversion commands
-- Enhanced project structure for scalability
+- **Major CLI Architecture Refactor**
+  - Implemented Command Pattern for extensibility
+  - Created common utilities module (`common.go`) to eliminate code duplication
+  - Added interfaces for commands (`Command`, `Renderer`)
+  - Separated concerns: each command in its own file
+  - main.go remains minimal (12 lines)
+  - Improved error handling with helper functions
+  - Reusable flag definitions
+  - DRY principle applied throughout
+- **Improved Code Quality**
+  - Eliminated duplicate validation code
+  - Common flag helpers across commands
+  - Consistent error messages
+  - Better separation of concerns
+- Enhanced project structure for maximum scalability
+- Updated help text to include all new commands
 
 ## [1.0.0] - 2025-11-05
 

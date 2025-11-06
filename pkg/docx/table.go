@@ -15,7 +15,7 @@ type Table struct {
 
 // TblPr represents table properties
 type TblPr struct {
-	XMLName xml.Name `xml:"tblPr"`
+	XMLName xml.Name  `xml:"tblPr"`
 	Style   *TblStyle `xml:"tblStyle,omitempty"`
 	Width   *TblWidth `xml:"tblW,omitempty"`
 }
@@ -35,8 +35,8 @@ type TblWidth struct {
 
 // TblGrid represents table grid/columns
 type TblGrid struct {
-	XMLName xml.Name      `xml:"tblGrid"`
-	Cols    []TblGridCol  `xml:"gridCol"`
+	XMLName xml.Name     `xml:"tblGrid"`
+	Cols    []TblGridCol `xml:"gridCol"`
 }
 
 // TblGridCol represents a table column
@@ -47,8 +47,8 @@ type TblGridCol struct {
 
 // TblRow represents a table row
 type TblRow struct {
-	XMLName xml.Name `xml:"tr"`
-	Props   *TrPr    `xml:"trPr,omitempty"`
+	XMLName xml.Name  `xml:"tr"`
+	Props   *TrPr     `xml:"trPr,omitempty"`
 	Cells   []TblCell `xml:"tc"`
 }
 
@@ -59,14 +59,14 @@ type TrPr struct {
 
 // TblCell represents a table cell
 type TblCell struct {
-	XMLName xml.Name   `xml:"tc"`
-	Props   *TcPr      `xml:"tcPr,omitempty"`
+	XMLName xml.Name    `xml:"tc"`
+	Props   *TcPr       `xml:"tcPr,omitempty"`
 	Content []Paragraph `xml:"p"`
 }
 
 // TcPr represents cell properties
 type TcPr struct {
-	XMLName xml.Name `xml:"tcPr"`
+	XMLName xml.Name  `xml:"tcPr"`
 	Width   *TblWidth `xml:"tcW,omitempty"`
 }
 

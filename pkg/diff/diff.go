@@ -41,10 +41,10 @@ type Change struct {
 
 // DiffResult represents the result of comparing two documents
 type DiffResult struct {
-	Changes      []Change
-	Stats        DiffStats
-	OldDocument  string
-	NewDocument  string
+	Changes     []Change
+	Stats       DiffStats
+	OldDocument string
+	NewDocument string
 }
 
 // DiffStats holds statistics about the diff

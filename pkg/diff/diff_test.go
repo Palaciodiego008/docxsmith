@@ -11,68 +11,68 @@ import (
 
 func TestCompareDOCX(t *testing.T) {
 	tests := []struct {
-		name           string
-		oldLines       []string
-		newLines       []string
-		expectedAdded  int
+		name            string
+		oldLines        []string
+		newLines        []string
+		expectedAdded   int
 		expectedDeleted int
-		expectedTotal  int
+		expectedTotal   int
 	}{
 		{
-			name:           "Identical documents",
-			oldLines:       []string{"Line 1", "Line 2", "Line 3"},
-			newLines:       []string{"Line 1", "Line 2", "Line 3"},
-			expectedAdded:  0,
+			name:            "Identical documents",
+			oldLines:        []string{"Line 1", "Line 2", "Line 3"},
+			newLines:        []string{"Line 1", "Line 2", "Line 3"},
+			expectedAdded:   0,
 			expectedDeleted: 0,
-			expectedTotal:  0,
+			expectedTotal:   0,
 		},
 		{
-			name:           "One line added",
-			oldLines:       []string{"Line 1", "Line 2"},
-			newLines:       []string{"Line 1", "Line 2", "Line 3"},
-			expectedAdded:  1,
+			name:            "One line added",
+			oldLines:        []string{"Line 1", "Line 2"},
+			newLines:        []string{"Line 1", "Line 2", "Line 3"},
+			expectedAdded:   1,
 			expectedDeleted: 0,
-			expectedTotal:  1,
+			expectedTotal:   1,
 		},
 		{
-			name:           "One line deleted",
-			oldLines:       []string{"Line 1", "Line 2", "Line 3"},
-			newLines:       []string{"Line 1", "Line 3"},
-			expectedAdded:  0,
+			name:            "One line deleted",
+			oldLines:        []string{"Line 1", "Line 2", "Line 3"},
+			newLines:        []string{"Line 1", "Line 3"},
+			expectedAdded:   0,
 			expectedDeleted: 1,
-			expectedTotal:  1,
+			expectedTotal:   1,
 		},
 		{
-			name:           "Multiple changes",
-			oldLines:       []string{"Old Line 1", "Line 2", "Old Line 3"},
-			newLines:       []string{"New Line 1", "Line 2", "New Line 3"},
-			expectedAdded:  2,
+			name:            "Multiple changes",
+			oldLines:        []string{"Old Line 1", "Line 2", "Old Line 3"},
+			newLines:        []string{"New Line 1", "Line 2", "New Line 3"},
+			expectedAdded:   2,
 			expectedDeleted: 2,
-			expectedTotal:  4,
+			expectedTotal:   4,
 		},
 		{
-			name:           "All lines different",
-			oldLines:       []string{"A", "B", "C"},
-			newLines:       []string{"X", "Y", "Z"},
-			expectedAdded:  3,
+			name:            "All lines different",
+			oldLines:        []string{"A", "B", "C"},
+			newLines:        []string{"X", "Y", "Z"},
+			expectedAdded:   3,
 			expectedDeleted: 3,
-			expectedTotal:  6,
+			expectedTotal:   6,
 		},
 		{
-			name:           "Empty old document",
-			oldLines:       []string{},
-			newLines:       []string{"Line 1", "Line 2"},
-			expectedAdded:  2,
+			name:            "Empty old document",
+			oldLines:        []string{},
+			newLines:        []string{"Line 1", "Line 2"},
+			expectedAdded:   2,
 			expectedDeleted: 0,
-			expectedTotal:  2,
+			expectedTotal:   2,
 		},
 		{
-			name:           "Empty new document",
-			oldLines:       []string{"Line 1", "Line 2"},
-			newLines:       []string{},
-			expectedAdded:  0,
+			name:            "Empty new document",
+			oldLines:        []string{"Line 1", "Line 2"},
+			newLines:        []string{},
+			expectedAdded:   0,
 			expectedDeleted: 2,
-			expectedTotal:  2,
+			expectedTotal:   2,
 		},
 	}
 
@@ -122,11 +122,11 @@ func TestCompareDOCX(t *testing.T) {
 
 func TestDiffOptions(t *testing.T) {
 	tests := []struct {
-		name           string
-		oldLines       []string
-		newLines       []string
-		options        DiffOptions
-		expectedTotal  int
+		name          string
+		oldLines      []string
+		newLines      []string
+		options       DiffOptions
+		expectedTotal int
 	}{
 		{
 			name:     "Ignore whitespace",
