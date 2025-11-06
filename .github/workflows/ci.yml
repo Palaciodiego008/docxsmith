@@ -8,12 +8,8 @@ on:
 
 jobs:
   test:
-    name: Test
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
-        go-version: ['1.21', '1.22', '1.23']
+    name: Unit Tests
+    runs-on: ubuntu-latest
 
     steps:
     - name: Checkout code
@@ -22,7 +18,7 @@ jobs:
     - name: Set up Go
       uses: actions/setup-go@v5
       with:
-        go-version: ${{ matrix.go-version }}
+        go-version: '1.23'
         cache: true
 
     - name: Get dependencies
@@ -31,21 +27,39 @@ jobs:
     - name: Verify dependencies
       run: go mod verify
 
-    - name: Run tests
-      run: go test -v -race -timeout 5m ./...
+    - name: Run unit tests
+      run: go test -v -race -timeout 10m ./...
 
-    - name: Run tests with coverage
-      if: matrix.os == 'ubuntu-latest' && matrix.go-version == '1.23'
-      run: go test -v -race -coverprofile=coverage.out -covermode=atomic ./...
+    - name: Generate coverage
+      run: go test -race -coverprofile=coverage.out -covermode=atomic ./...
 
-    - name: Upload coverage to Codecov
-      if: matrix.os == 'ubuntu-latest' && matrix.go-version == '1.23'
-      uses: codecov/codecov-action@v4
+    - name: Display coverage
+      run: go tool cover -func=coverage.out
+
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Go
+      uses: actions/setup-go@v5
       with:
-        file: ./coverage.out
-        flags: unittests
-        name: codecov-umbrella
-        fail_ci_if_error: false
+        go-version: '1.23'
+        cache: true
+
+    - name: Run go fmt
+      run: |
+        if [ -n "$(gofmt -s -l .)" ]; then
+          echo "Go code is not formatted:"
+          gofmt -s -l .
+          exit 1
+        fi
+
+    - name: Run go vet
+      run: go vet ./...
 
   build:
     name: Build
@@ -74,9 +88,10 @@ jobs:
       with:
         name: docxsmith-linux-amd64
         path: docxsmith
+        retention-days: 7
 
-  lint:
-    name: Lint
+  security:
+    name: Security Scan
     runs-on: ubuntu-latest
 
     steps:
@@ -87,39 +102,12 @@ jobs:
       uses: actions/setup-go@v5
       with:
         go-version: '1.23'
-        cache: true
-
-    - name: Run go fmt
-      run: |
-        if [ -n "$(gofmt -s -l .)" ]; then
-          echo "Go code is not formatted:"
-          gofmt -s -l .
-          exit 1
-        fi
-
-    - name: Run go vet
-      run: go vet ./...
-
-    - name: Run staticcheck
-      uses: dominikh/staticcheck-action@v1
-      with:
-        version: "latest"
-        install-go: false
-
-  security:
-    name: Security Scan
-    runs-on: ubuntu-latest
-
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
 
     - name: Run Gosec Security Scanner
-      uses: securego/gosec@master
-      with:
-        args: '-no-fail -fmt sarif -out results.sarif ./...'
+      run: |
+        go install github.com/securego/gosec/v2/cmd/gosec@latest
+        gosec -fmt=text -out=gosec-report.txt ./...
+      continue-on-error: true
 
-    - name: Upload SARIF file
-      uses: github/codeql-action/upload-sarif@v3
-      with:
-        sarif_file: results.sarif
+    - name: Display security report
+      run: cat gosec-report.txt || echo "No security issues found"

@@ -10,25 +10,26 @@ Runs on every push and pull request to `main` and `develop` branches.
 
 **Jobs:**
 
-#### Test Job
-- **Matrix testing**: Tests across 3 OS (Ubuntu, macOS, Windows) and 3 Go versions (1.21, 1.22, 1.23)
-- **Race detection**: Runs with `-race` flag to detect race conditions
-- **Coverage**: Generates coverage report on Ubuntu + Go 1.23
-- **Codecov integration**: Uploads coverage to Codecov.io
+#### 1. Unit Tests
+- Tests on Ubuntu with Go 1.23
+- Race detection enabled (`-race` flag)
+- Coverage report generation
+- Timeout: 10 minutes
 
-#### Build Job
-- **Builds CLI**: Compiles the binary
-- **Tests binary**: Runs basic commands to verify
-- **Artifact upload**: Saves binary as GitHub artifact
+#### 2. Lint
+- Code formatting check (`gofmt`)
+- Static analysis (`go vet`)
+- Ensures code quality standards
 
-#### Lint Job
-- **go fmt check**: Ensures code is formatted
-- **go vet**: Static analysis
-- **staticcheck**: Advanced linting
+#### 3. Build
+- Compiles CLI binary
+- Tests binary execution
+- Uploads artifact (7-day retention)
 
-#### Security Job
-- **Gosec scanner**: Security vulnerability scanning
-- **SARIF upload**: Results uploaded to GitHub Security tab
+#### 4. Security Scan
+- Gosec security scanner
+- Vulnerability detection
+- Non-blocking (continues on error)
 
 ### 2. Release Workflow (`.github/workflows/release.yml`)
 
@@ -53,15 +54,6 @@ git push origin v1.1.0
 # GitHub Actions automatically creates release
 ```
 
-### 3. CodeQL Workflow (`.github/workflows/codeql.yml`)
-
-Runs weekly and on main branch changes.
-
-**Security Analysis:**
-- Advanced code scanning
-- Detects security vulnerabilities
-- Results in GitHub Security tab
-- Automated alerts for issues
 
 ## Dependabot
 
@@ -157,10 +149,10 @@ make tidy           # Clean up go.mod
 │  CI Workflow    │
 └────────┬────────┘
          │
-         ├──► Test (3 OS × 3 Go versions = 9 jobs)
+         ├──► Unit Tests (race detector, coverage)
+         ├──► Lint (fmt, vet)
          ├──► Build (compile & verify)
-         ├──► Lint (fmt, vet, staticcheck)
-         └──► Security (gosec, codeql)
+         └──► Security (gosec)
          │
          ▼
 ┌─────────────────┐

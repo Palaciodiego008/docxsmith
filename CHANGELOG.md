@@ -25,14 +25,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Merge info preview
   - 82.1% test coverage
 - **CI/CD Pipeline** - Professional automation
-  - GitHub Actions workflows (CI, Release, CodeQL)
-  - Multi-OS testing (Ubuntu, macOS, Windows)
-  - Multi-version Go testing (1.21, 1.22, 1.23)
+  - GitHub Actions workflows (CI, Release)
+  - 4 CI jobs: Unit Tests, Lint, Build, Security
+  - Unit tests with race detector
+  - Code quality checks (fmt, vet)
   - Automated releases with binaries for 5 platforms
   - Pre-commit hooks for local validation
   - Dependabot for automatic updates
-  - Security scanning (Gosec, CodeQL)
-  - Coverage reporting (Codecov integration)
+  - Security scanning (Gosec)
+  - Coverage reporting
 - **PDF Support** - Full PDF document manipulation capabilities
   - Create new PDF documents with text and styling
   - Read and parse existing PDF files
