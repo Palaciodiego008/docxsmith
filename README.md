@@ -354,10 +354,18 @@ go test -v ./pkg/docx
 ```
 docxsmith/
 ├── cmd/
-│   └── docxsmith/          # CLI tool
-│       └── main.go
+│   └── docxsmith/          # CLI entry point
+│       └── main.go         # Minimal main function
+├── internal/
+│   └── cli/                # CLI command implementations
+│       ├── cli.go          # CLI router and usage
+│       ├── create.go       # Create command
+│       ├── content.go      # Add, delete, clear commands
+│       ├── text.go         # Find, replace, extract commands
+│       ├── table.go        # Table operations
+│       └── info.go         # Info command
 ├── pkg/
-│   └── docx/               # Core library
+│   └── docx/               # Core library (public API)
 │       ├── document.go     # Document structure
 │       ├── reader.go       # Reading .docx files
 │       ├── writer.go       # Writing .docx files
@@ -366,7 +374,7 @@ docxsmith/
 │       ├── creator.go      # Document creation
 │       ├── *_test.go       # Tests
 ├── examples/               # Usage examples
-├── testdata/              # Test fixtures
+├── testdata/               # Test fixtures
 ├── go.mod
 └── README.md
 ```
