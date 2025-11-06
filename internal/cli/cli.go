@@ -67,6 +67,10 @@ func Run(args []string) {
 	case "merge-info":
 		HandleMergeInfo(args[1:])
 
+	// Document Diff
+	case "diff":
+		HandleDiff(args[1:])
+
 	// Utility
 	case "version":
 		fmt.Printf("DocxSmith v%s\n", Version)
@@ -117,6 +121,9 @@ Merge & Split:
   split        Split a document into multiple files
   merge-info   Show information about merge operation
 
+Comparison:
+  diff         Compare two documents and show differences
+
 Utility:
   version     Show version information
   help        Show this help message
@@ -145,6 +152,10 @@ Examples:
   docxsmith merge -inputs doc1.docx,doc2.docx,doc3.docx -output combined.docx
   docxsmith split -input large.pdf -count 3 -pattern "chapter{n}.pdf"
   docxsmith split -input book.docx -by-heading -heading-level 1
+
+  # Document Comparison
+  docxsmith diff -old v1.docx -new v2.docx -output changes.html
+  docxsmith diff -old v1.docx -new v2.docx -format markdown -ignore-whitespace
 
 For more information on a command:
   docxsmith <command> -help
