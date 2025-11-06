@@ -76,7 +76,7 @@ func (c *DocxToPDF) Convert(doc *docx.Document, outputPath string) error {
 			}
 
 			page.AddTextStyled(text, page.Margin.Left, currentY, style)
-			currentY += fontSize * 0.5 // Line spacing
+			currentY += fontSize * 1.5 // Line spacing (1.5x font size for readability)
 
 			// Check if we need a new page
 			if currentY > page.Height-page.Margin.Bottom {
