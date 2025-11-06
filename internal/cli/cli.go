@@ -51,6 +51,14 @@ func Run(args []string) {
 	case "convert":
 		HandleConvert(args[1:])
 
+	// Template Engine
+	case "template-render":
+		HandleTemplateRender(args[1:])
+	case "template-variables":
+		HandleTemplateVariables(args[1:])
+	case "template-example":
+		HandleTemplateExample(args[1:])
+
 	// Utility
 	case "version":
 		fmt.Printf("DocxSmith v%s\n", Version)
@@ -91,6 +99,11 @@ PDF Commands:
 Conversion:
   convert     Convert between DOCX and PDF formats
 
+Template Engine:
+  template-render     Render a template with data (JSON/YAML)
+  template-variables  List variables in a template
+  template-example    Create example template and data files
+
 Utility:
   version     Show version information
   help        Show this help message
@@ -109,6 +122,11 @@ Examples:
   # Conversion
   docxsmith convert -input document.docx -output document.pdf
   docxsmith convert -input document.pdf -output document.docx
+
+  # Template Engine
+  docxsmith template-example -template invoice.docx -data data.json
+  docxsmith template-render -template invoice.docx -data data.json -output result.docx
+  docxsmith template-variables -template invoice.docx
 
 For more information on a command:
   docxsmith <command> -help

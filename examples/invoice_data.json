@@ -1,0 +1,20 @@
+{
+  "CompanyName": "ACME Corp",
+  "CustomerName": "John Doe",
+  "Date": "2025-11-05",
+  "IsPaid": false,
+  "Items": [
+    {
+      "Name": "Product A",
+      "Price": "$500.00",
+      "Quantity": "2"
+    },
+    {
+      "Name": "Product B",
+      "Price": "$250.00",
+      "Quantity": "1"
+    }
+  ],
+  "Title": "Invoice",
+  "Total": "$1,250.00"
+}
