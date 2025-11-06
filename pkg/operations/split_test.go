@@ -12,11 +12,11 @@ import (
 
 func TestSplitDOCXByParagraphs(t *testing.T) {
 	tests := []struct {
-		name           string
-		totalParas     int
-		ranges         []ParagraphRange
-		expectedFiles  int
-		expectedParas  []int // paragraphs in each output file
+		name          string
+		totalParas    int
+		ranges        []ParagraphRange
+		expectedFiles int
+		expectedParas []int // paragraphs in each output file
 	}{
 		{
 			name:       "Split into 2 parts",

@@ -13,11 +13,11 @@ type Document struct {
 
 // Page represents a single page in the PDF
 type Page struct {
-	Number    int
-	Content   []Content
-	Width     float64
-	Height    float64
-	Margin    Margin
+	Number  int
+	Content []Content
+	Width   float64
+	Height  float64
+	Margin  Margin
 }
 
 // Content represents content on a page (text, image, table, etc.)

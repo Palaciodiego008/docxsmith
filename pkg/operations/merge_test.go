@@ -11,13 +11,13 @@ import (
 
 func TestMergeDOCX(t *testing.T) {
 	tests := []struct {
-		name              string
-		numDocs           int
-		parasPerDoc       int
-		expectedParas     int
-		addPageBreaks     bool
-		addSeparator      bool
-		separatorText     string
+		name          string
+		numDocs       int
+		parasPerDoc   int
+		expectedParas int
+		addPageBreaks bool
+		addSeparator  bool
+		separatorText string
 	}{
 		{
 			name:          "Merge 2 documents with page breaks",

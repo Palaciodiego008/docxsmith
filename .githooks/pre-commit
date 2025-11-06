@@ -1,0 +1,29 @@
+#!/bin/bash
+# Pre-commit hook for DocxSmith
+# Install: cp .githooks/pre-commit .git/hooks/pre-commit && chmod +x .git/hooks/pre-commit
+
+set -e
+
+echo "🔍 Running pre-commit checks..."
+
+# 1. Format check
+echo "  ✓ Checking code formatting..."
+if [ -n "$(gofmt -s -l .)" ]; then
+    echo "    ❌ Go code is not formatted. Run: gofmt -s -w ."
+    gofmt -s -l .
+    exit 1
+fi
+
+# 2. Go vet
+echo "  ✓ Running go vet..."
+go vet ./...
+
+# 3. Run tests
+echo "  ✓ Running tests..."
+go test -short ./...
+
+# 4. Build check
+echo "  ✓ Checking build..."
+go build -o /dev/null ./cmd/docxsmith
+
+echo "✅ All pre-commit checks passed!"

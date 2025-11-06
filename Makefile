@@ -1,4 +1,4 @@
-.PHONY: build test clean install run-example help
+.PHONY: build test clean install run-example help ci setup-hooks
 
 # Build the CLI tool
 build:
@@ -61,19 +61,67 @@ create-test-doc:
 pre-commit: fmt tidy test
 	@echo "Pre-commit checks completed successfully!"
 
+# Setup git hooks
+setup-hooks:
+	@echo "Setting up git hooks..."
+	@mkdir -p .git/hooks
+	@cp .githooks/pre-commit .git/hooks/pre-commit
+	@chmod +x .git/hooks/pre-commit
+	@echo "Git hooks installed successfully!"
+	@echo "Pre-commit hook will run: fmt, vet, and tests"
+
+# CI simulation (runs same checks as GitHub Actions)
+ci: fmt tidy
+	@echo "Running CI checks..."
+	@echo "  ✓ Format check..."
+	@test -z "$$(gofmt -s -l .)" || (echo "Code not formatted" && exit 1)
+	@echo "  ✓ Go vet..."
+	@go vet ./...
+	@echo "  ✓ Tests with race detector..."
+	@go test -race -timeout 5m ./...
+	@echo "  ✓ Build check..."
+	@go build -o /tmp/docxsmith ./cmd/docxsmith
+	@rm -f /tmp/docxsmith
+	@echo "✅ All CI checks passed!"
+
+# Test with race detector (like GitHub Actions)
+test-race:
+	@echo "Running tests with race detector..."
+	go test -race -v ./...
+
+# Coverage with upload simulation
+coverage-ci:
+	@echo "Running coverage like CI..."
+	go test -race -coverprofile=coverage.out -covermode=atomic ./...
+	go tool cover -func=coverage.out
+	@echo "Coverage report: coverage.out"
+
 # Show help
 help:
 	@echo "DocxSmith - Makefile commands:"
 	@echo ""
+	@echo "Build & Install:"
 	@echo "  make build           - Build the CLI tool"
-	@echo "  make install         - Install the CLI tool"
+	@echo "  make install         - Install the CLI tool globally"
+	@echo ""
+	@echo "Testing:"
 	@echo "  make test            - Run tests"
+	@echo "  make test-race       - Run tests with race detector"
 	@echo "  make test-coverage   - Run tests with coverage report"
-	@echo "  make run-example     - Run the basic usage example"
-	@echo "  make clean           - Clean build artifacts"
-	@echo "  make lint            - Run linter"
+	@echo "  make coverage-ci     - Coverage like GitHub Actions"
+	@echo ""
+	@echo "Code Quality:"
 	@echo "  make fmt             - Format code"
+	@echo "  make lint            - Run linter"
 	@echo "  make tidy            - Tidy dependencies"
-	@echo "  make create-test-doc - Create a sample test document"
 	@echo "  make pre-commit      - Run all checks before commit"
+	@echo ""
+	@echo "CI/CD:"
+	@echo "  make ci              - Simulate GitHub Actions CI"
+	@echo "  make setup-hooks     - Install git pre-commit hooks"
+	@echo ""
+	@echo "Utilities:"
+	@echo "  make run-example     - Run the basic usage example"
+	@echo "  make create-test-doc - Create a sample test document"
+	@echo "  make clean           - Clean build artifacts"
 	@echo "  make help            - Show this help message"

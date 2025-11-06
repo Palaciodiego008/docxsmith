@@ -10,12 +10,12 @@ import (
 
 // Document represents a .docx document structure
 type Document struct {
-	FilePath    string
-	Body        *Body
-	Styles      *Styles
+	FilePath     string
+	Body         *Body
+	Styles       *Styles
 	ContentTypes *ContentTypes
-	Rels        *Relationships
-	files       map[string][]byte // All files in the docx zip
+	Rels         *Relationships
+	files        map[string][]byte // All files in the docx zip
 }
 
 // Body represents the document body
@@ -43,9 +43,9 @@ type Run struct {
 
 // Text represents text content
 type Text struct {
-	XMLName   xml.Name `xml:"t"`
-	Space     string   `xml:"space,attr,omitempty"`
-	Content   string   `xml:",chardata"`
+	XMLName xml.Name `xml:"t"`
+	Space   string   `xml:"space,attr,omitempty"`
+	Content string   `xml:",chardata"`
 }
 
 // PProps represents paragraph properties
