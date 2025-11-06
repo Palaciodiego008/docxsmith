@@ -52,9 +52,18 @@ func HandleTable(args []string) {
 		}
 
 		var tableIdx, row, col int
-		fmt.Sscanf(parts[0], "%d", &tableIdx)
-		fmt.Sscanf(parts[1], "%d", &row)
-		fmt.Sscanf(parts[2], "%d", &col)
+		if n, err := fmt.Sscanf(parts[0], "%d", &tableIdx); err != nil || n != 1 {
+			fmt.Fprintf(os.Stderr, "Error: invalid tableIdx value '%s'\n", parts[0])
+			os.Exit(1)
+		}
+		if n, err := fmt.Sscanf(parts[1], "%d", &row); err != nil || n != 1 {
+			fmt.Fprintf(os.Stderr, "Error: invalid row value '%s'\n", parts[1])
+			os.Exit(1)
+		}
+		if n, err := fmt.Sscanf(parts[2], "%d", &col); err != nil || n != 1 {
+			fmt.Fprintf(os.Stderr, "Error: invalid col value '%s'\n", parts[2])
+			os.Exit(1)
+		}
 		text := parts[3]
 
 		if tableIdx < 0 || tableIdx >= len(doc.Body.Tables) {
