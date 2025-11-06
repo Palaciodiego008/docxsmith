@@ -59,6 +59,14 @@ func Run(args []string) {
 	case "template-example":
 		HandleTemplateExample(args[1:])
 
+	// Merge & Split
+	case "merge":
+		HandleMerge(args[1:])
+	case "split":
+		HandleSplit(args[1:])
+	case "merge-info":
+		HandleMergeInfo(args[1:])
+
 	// Utility
 	case "version":
 		fmt.Printf("DocxSmith v%s\n", Version)
@@ -104,6 +112,11 @@ Template Engine:
   template-variables  List variables in a template
   template-example    Create example template and data files
 
+Merge & Split:
+  merge        Merge multiple documents into one
+  split        Split a document into multiple files
+  merge-info   Show information about merge operation
+
 Utility:
   version     Show version information
   help        Show this help message
@@ -127,6 +140,11 @@ Examples:
   docxsmith template-example -template invoice.docx -data data.json
   docxsmith template-render -template invoice.docx -data data.json -output result.docx
   docxsmith template-variables -template invoice.docx
+
+  # Merge & Split
+  docxsmith merge -inputs doc1.docx,doc2.docx,doc3.docx -output combined.docx
+  docxsmith split -input large.pdf -count 3 -pattern "chapter{n}.pdf"
+  docxsmith split -input book.docx -by-heading -heading-level 1
 
 For more information on a command:
   docxsmith <command> -help
