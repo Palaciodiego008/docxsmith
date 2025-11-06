@@ -32,11 +32,11 @@ func HandleReplace(args []string) {
 
 	var count int
 	if *paragraph >= 0 {
-		if err := doc.ReplaceTextInParagraph(*paragraph, *oldText, *newText); err != nil {
+		count, err := doc.ReplaceTextInParagraph(*paragraph, *oldText, *newText)
+		if err != nil {
 			fmt.Fprintf(os.Stderr, "Error replacing text: %v\n", err)
 			os.Exit(1)
 		}
-		count = 1
 	} else {
 		count = doc.ReplaceText(*oldText, *newText)
 	}
