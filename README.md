@@ -1,6 +1,10 @@
 # DocxSmith - The Document Forge
 
 <p align="center">
+  <img src="assets/docxmish-gopher.png" alt="DocxSmith Gopher" width="200">
+</p>
+
+<p align="center">
   <strong>A powerful and elegant Go library and CLI tool for manipulating .docx and .pdf files</strong>
 </p>
 
