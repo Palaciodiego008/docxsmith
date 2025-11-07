@@ -1,6 +1,8 @@
 module github.com/Palaciodiego008/docxsmith
 
-go 1.24.3
+go 1.24.1
+
+toolchain go1.24.3
 
 require (
 	github.com/jung-kurt/gofpdf v1.16.2
