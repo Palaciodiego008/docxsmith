@@ -1,7 +1,7 @@
 # DocxSmith - The Document Forge
 
 <p align="center">
-  <img src="assets/docxmish-gopher-1.png" alt="DocxSmith Gopher" width="300">
+  <img src="assets/docxmish-gopher-1.png" alt="DocxSmith Gopher" width="300" style="background-color: white; border-radius: 15px; padding: 20px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
 </p>
 
 <p align="center">
