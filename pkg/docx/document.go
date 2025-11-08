@@ -18,6 +18,7 @@ type Document struct {
 	files              map[string][]byte // All files in the docx zip
 	nextImageID        int               // Counter for the next image ID (for performance)
 	nextRelationshipID int               // Counter for the next relationship ID (for correctness)
+	headerFooterMgr    HeaderFooterManager
 }
 
 // Body represents the document body
@@ -205,4 +206,61 @@ func saveZipFile(w *zip.Writer, name string, data []byte) error {
 	}
 	_, err = fw.Write(data)
 	return err
+}
+
+// Header and Footer methods
+
+// SetHeader sets a header with the specified type and content
+func (d *Document) SetHeader(hfType HeaderFooterType, content string, opts ...HeaderFooterOption) error {
+	d.ensureHeaderFooterManager()
+	return d.headerFooterMgr.SetHeader(hfType, content, opts...)
+}
+
+// SetFooter sets a footer with the specified type and content
+func (d *Document) SetFooter(hfType HeaderFooterType, content string, opts ...HeaderFooterOption) error {
+	d.ensureHeaderFooterManager()
+	return d.headerFooterMgr.SetFooter(hfType, content, opts...)
+}
+
+// GetHeader retrieves a header by type
+func (d *Document) GetHeader(hfType HeaderFooterType) (*HeaderFooter, error) {
+	d.ensureHeaderFooterManager()
+	return d.headerFooterMgr.GetHeader(hfType)
+}
+
+// GetFooter retrieves a footer by type
+func (d *Document) GetFooter(hfType HeaderFooterType) (*HeaderFooter, error) {
+	d.ensureHeaderFooterManager()
+	return d.headerFooterMgr.GetFooter(hfType)
+}
+
+// RemoveHeader removes a header by type
+func (d *Document) RemoveHeader(hfType HeaderFooterType) error {
+	d.ensureHeaderFooterManager()
+	return d.headerFooterMgr.RemoveHeader(hfType)
+}
+
+// RemoveFooter removes a footer by type
+func (d *Document) RemoveFooter(hfType HeaderFooterType) error {
+	d.ensureHeaderFooterManager()
+	return d.headerFooterMgr.RemoveFooter(hfType)
+}
+
+// HasHeader checks if a header exists
+func (d *Document) HasHeader(hfType HeaderFooterType) bool {
+	d.ensureHeaderFooterManager()
+	return d.headerFooterMgr.HasHeader(hfType)
+}
+
+// HasFooter checks if a footer exists
+func (d *Document) HasFooter(hfType HeaderFooterType) bool {
+	d.ensureHeaderFooterManager()
+	return d.headerFooterMgr.HasFooter(hfType)
+}
+
+// ensureHeaderFooterManager initializes the header/footer manager if needed
+func (d *Document) ensureHeaderFooterManager() {
+	if d.headerFooterMgr == nil {
+		d.headerFooterMgr = NewHeaderFooterService(d)
+	}
 }
