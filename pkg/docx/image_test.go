@@ -5,6 +5,8 @@ import (
 	"path/filepath"
 	"strings"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestAddImage(t *testing.T) {
@@ -430,6 +432,62 @@ func TestImageIDAfterOpen(t *testing.T) {
 	}
 }
 
+func TestImageContentTypesAndRelationships(t *testing.T) {
+	doc := New()
+
+	// Create test images with different extensions
+	pngPath := createTestImageFile(t, "test.png", createPNGData())
+	defer os.Remove(pngPath)
+
+	jpegPath := createTestImageFile(t, "test.jpg", createJPEGData())
+	defer os.Remove(jpegPath)
+
+	gifPath := createTestImageFile(t, "test.gif", createGIFData())
+	defer os.Remove(gifPath)
+
+	// Add images
+	assert.NoError(t, doc.AddImage(pngPath), "Failed to add PNG")
+	assert.NoError(t, doc.AddImage(jpegPath), "Failed to add JPEG")
+	assert.NoError(t, doc.AddImage(gifPath), "Failed to add GIF")
+
+	// Verify Content Types are registered
+	contentTypesData, exists := doc.files["[Content_Types].xml"]
+	assert.True(t, exists, "Content Types file not found")
+
+	contentTypesStr := string(contentTypesData)
+
+	// Check for PNG content type
+	assert.Contains(t, contentTypesStr, `Extension="png"`, "PNG extension not registered")
+	assert.Contains(t, contentTypesStr, `image/png`, "PNG MIME type not registered")
+
+	// Check for JPEG content type
+	assert.Contains(t, contentTypesStr, `Extension="jpg"`, "JPEG extension not registered")
+	assert.Contains(t, contentTypesStr, `image/jpeg`, "JPEG MIME type not registered")
+
+	// Check for GIF content type
+	assert.Contains(t, contentTypesStr, `Extension="gif"`, "GIF extension not registered")
+	assert.Contains(t, contentTypesStr, `image/gif`, "GIF MIME type not registered")
+
+	// Verify Relationships are registered
+	relsData, exists := doc.files["word/_rels/document.xml.rels"]
+	assert.True(t, exists, "Relationships file not found")
+
+	relsStr := string(relsData)
+
+	// Check for relationship entries
+	assert.Contains(t, relsStr, `rId1`, "First relationship not found")
+	assert.Contains(t, relsStr, `rId2`, "Second relationship not found")
+	assert.Contains(t, relsStr, `rId3`, "Third relationship not found")
+
+	// Check for image relationship type
+	assert.Contains(t, relsStr, `Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/image"`, "Image relationship type not found")
+
+	// Check for image targets
+	assert.Contains(t, relsStr, `Target="media/image1.png"`, "PNG image target not found")
+	assert.Contains(t, relsStr, `Target="media/image2.jpg"`, "JPEG image target not found")
+	assert.Contains(t, relsStr, `Target="media/image3.gif"`, "GIF image target not found")
+}
+
 func TestImageValidation(t *testing.T) {
 	tests := []struct {
 		name      string
@@ -466,6 +524,18 @@ func TestImageValidation(t *testing.T) {
 			extension: ".bmp",
 			header:    []byte{0x42, 0x4D, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00},
 			expectErr: false,
+		},
+		{
+			name:      "valid WebP",
+			extension: ".webp",
+			header:    []byte{0x52, 0x49, 0x46, 0x46, 0x00, 0x00, 0x00, 0x00, 0x57, 0x45, 0x42, 0x50}, // RIFF....WEBP
+			expectErr: false,
+		},
+		{
+			name:      "invalid WebP (RIFF but not WEBP)",
+			extension: ".webp",
+			header:    []byte{0x52, 0x49, 0x46, 0x46, 0x00, 0x00, 0x00, 0x00, 0x41, 0x56, 0x49, 0x20}, // RIFF....AVI (AVI file)
+			expectErr: true,
 		},
 		{
 			name:      "invalid PNG header",

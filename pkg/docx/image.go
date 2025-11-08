@@ -4,9 +4,9 @@ import (
 	"encoding/base64"
 	"encoding/xml"
 	"fmt"
-	"io"
 	"os"
 	"path/filepath"
+	"regexp"
 	"slices"
 	"strconv"
 	"strings"
@@ -14,34 +14,34 @@ import (
 
 // Drawing represents a drawing element in a run
 type Drawing struct {
-	XMLName xml.Name `xml:"drawing"`
-	Inline  *Inline  `xml:"inline"`
+	XMLName xml.Name `xml:"http://schemas.openxmlformats.org/wordprocessingml/2006/main drawing"`
+	Inline  *Inline  `xml:"http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing inline"`
 }
 
 // Inline represents an inline drawing
 type Inline struct {
-	XMLName    xml.Name    `xml:"inline"`
+	XMLName    xml.Name    `xml:"http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing inline"`
 	DistT      string      `xml:"distT,attr,omitempty"`
 	DistB      string      `xml:"distB,attr,omitempty"`
 	DistL      string      `xml:"distL,attr,omitempty"`
 	DistR      string      `xml:"distR,attr,omitempty"`
-	Extent     *Extent     `xml:"extent"`
-	EffectExt  *EffectExt  `xml:"effectExtent"`
-	DocPr      *DocPr      `xml:"docPr"`
-	CNvGraphic *CNvGraphic `xml:"cNvGraphicFramePr"`
-	Graphic    *Graphic    `xml:"graphic"`
+	Extent     *Extent     `xml:"http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing extent"`
+	EffectExt  *EffectExt  `xml:"http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing effectExtent"`
+	DocPr      *DocPr      `xml:"http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing docPr"`
+	CNvGraphic *CNvGraphic `xml:"http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing cNvGraphicFramePr"`
+	Graphic    *Graphic    `xml:"http://schemas.openxmlformats.org/drawingml/2006/main graphic"`
 }
 
 // Extent represents the size of the drawing
 type Extent struct {
-	XMLName xml.Name `xml:"extent"`
+	XMLName xml.Name `xml:"http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing extent"`
 	Cx      string   `xml:"cx,attr"`
 	Cy      string   `xml:"cy,attr"`
 }
 
 // EffectExt represents effect extents
 type EffectExt struct {
-	XMLName xml.Name `xml:"effectExtent"`
+	XMLName xml.Name `xml:"http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing effectExtent"`
 	L       string   `xml:"l,attr"`
 	T       string   `xml:"t,attr"`
 	R       string   `xml:"r,attr"`
@@ -50,103 +50,103 @@ type EffectExt struct {
 
 // DocPr represents document properties
 type DocPr struct {
-	XMLName xml.Name `xml:"docPr"`
+	XMLName xml.Name `xml:"http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing docPr"`
 	ID      string   `xml:"id,attr"`
 	Name    string   `xml:"name,attr"`
 }
 
 // CNvGraphic represents graphic frame properties
 type CNvGraphic struct {
-	XMLName xml.Name `xml:"cNvGraphicFramePr"`
+	XMLName xml.Name `xml:"http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing cNvGraphicFramePr"`
 }
 
 // Graphic represents the graphic element
 type Graphic struct {
-	XMLName     xml.Name     `xml:"graphic"`
-	GraphicData *GraphicData `xml:"graphicData"`
+	XMLName     xml.Name     `xml:"http://schemas.openxmlformats.org/drawingml/2006/main graphic"`
+	GraphicData *GraphicData `xml:"http://schemas.openxmlformats.org/drawingml/2006/main graphicData"`
 }
 
 // GraphicData represents graphic data
 type GraphicData struct {
-	XMLName xml.Name `xml:"graphicData"`
+	XMLName xml.Name `xml:"http://schemas.openxmlformats.org/drawingml/2006/main graphicData"`
 	URI     string   `xml:"uri,attr"`
-	Pic     *Pic     `xml:"pic"`
+	Pic     *Pic     `xml:"http://schemas.openxmlformats.org/drawingml/2006/picture pic"`
 }
 
 // Pic represents a picture
 type Pic struct {
-	XMLName  xml.Name  `xml:"pic"`
-	NvPicPr  *NvPicPr  `xml:"nvPicPr"`
-	BlipFill *BlipFill `xml:"blipFill"`
-	SpPr     *SpPr     `xml:"spPr"`
+	XMLName  xml.Name  `xml:"http://schemas.openxmlformats.org/drawingml/2006/picture pic"`
+	NvPicPr  *NvPicPr  `xml:"http://schemas.openxmlformats.org/drawingml/2006/picture nvPicPr"`
+	BlipFill *BlipFill `xml:"http://schemas.openxmlformats.org/drawingml/2006/picture blipFill"`
+	SpPr     *SpPr     `xml:"http://schemas.openxmlformats.org/drawingml/2006/picture spPr"`
 }
 
 // NvPicPr represents non-visual picture properties
 type NvPicPr struct {
-	XMLName  xml.Name   `xml:"nvPicPr"`
-	CNvPr    *CNvPr     `xml:"cNvPr"`
-	CNvPicPr *CNvPicPr2 `xml:"cNvPicPr"`
+	XMLName  xml.Name   `xml:"http://schemas.openxmlformats.org/drawingml/2006/picture nvPicPr"`
+	CNvPr    *CNvPr     `xml:"http://schemas.openxmlformats.org/drawingml/2006/picture cNvPr"`
+	CNvPicPr *CNvPicPr2 `xml:"http://schemas.openxmlformats.org/drawingml/2006/picture cNvPicPr"`
 }
 
 // CNvPr represents common non-visual properties
 type CNvPr struct {
-	XMLName xml.Name `xml:"cNvPr"`
+	XMLName xml.Name `xml:"http://schemas.openxmlformats.org/drawingml/2006/picture cNvPr"`
 	ID      string   `xml:"id,attr"`
 	Name    string   `xml:"name,attr"`
 }
 
 // CNvPicPr2 represents picture-specific non-visual properties
 type CNvPicPr2 struct {
-	XMLName xml.Name `xml:"cNvPicPr"`
+	XMLName xml.Name `xml:"http://schemas.openxmlformats.org/drawingml/2006/picture cNvPicPr"`
 }
 
 // BlipFill represents the image fill
 type BlipFill struct {
-	XMLName xml.Name `xml:"blipFill"`
-	Blip    *Blip    `xml:"blip"`
-	Stretch *Stretch `xml:"stretch"`
+	XMLName xml.Name `xml:"http://schemas.openxmlformats.org/drawingml/2006/picture blipFill"`
+	Blip    *Blip    `xml:"http://schemas.openxmlformats.org/drawingml/2006/main blip"`
+	Stretch *Stretch `xml:"http://schemas.openxmlformats.org/drawingml/2006/picture stretch"`
 }
 
 // Blip represents the image reference
 type Blip struct {
-	XMLName xml.Name `xml:"blip"`
-	Embed   string   `xml:"embed,attr"`
+	XMLName xml.Name `xml:"http://schemas.openxmlformats.org/drawingml/2006/main blip"`
+	Embed   string   `xml:"http://schemas.openxmlformats.org/officeDocument/2006/relationships embed,attr"`
 }
 
 // Stretch represents stretch properties
 type Stretch struct {
-	XMLName  xml.Name  `xml:"stretch"`
-	FillRect *FillRect `xml:"fillRect"`
+	XMLName  xml.Name  `xml:"http://schemas.openxmlformats.org/drawingml/2006/picture stretch"`
+	FillRect *FillRect `xml:"http://schemas.openxmlformats.org/drawingml/2006/main fillRect"`
 }
 
 // FillRect represents fill rectangle
 type FillRect struct {
-	XMLName xml.Name `xml:"fillRect"`
+	XMLName xml.Name `xml:"http://schemas.openxmlformats.org/drawingml/2006/main fillRect"`
 }
 
 // SpPr represents shape properties
 type SpPr struct {
-	XMLName  xml.Name  `xml:"spPr"`
-	Xfrm     *Xfrm     `xml:"xfrm"`
-	PrstGeom *PrstGeom `xml:"prstGeom"`
+	XMLName  xml.Name  `xml:"http://schemas.openxmlformats.org/drawingml/2006/picture spPr"`
+	Xfrm     *Xfrm     `xml:"http://schemas.openxmlformats.org/drawingml/2006/main xfrm"`
+	PrstGeom *PrstGeom `xml:"http://schemas.openxmlformats.org/drawingml/2006/main prstGeom"`
 }
 
 // Xfrm represents transform properties
 type Xfrm struct {
-	XMLName xml.Name `xml:"xfrm"`
-	Ext     *XfrmExt `xml:"ext"`
+	XMLName xml.Name `xml:"http://schemas.openxmlformats.org/drawingml/2006/main xfrm"`
+	Ext     *XfrmExt `xml:"http://schemas.openxmlformats.org/drawingml/2006/main ext"`
 }
 
 // XfrmExt represents transform extent (different from drawing extent)
 type XfrmExt struct {
-	XMLName xml.Name `xml:"ext"`
+	XMLName xml.Name `xml:"http://schemas.openxmlformats.org/drawingml/2006/main ext"`
 	Cx      string   `xml:"cx,attr"`
 	Cy      string   `xml:"cy,attr"`
 }
 
 // PrstGeom represents preset geometry
 type PrstGeom struct {
-	XMLName xml.Name `xml:"prstGeom"`
+	XMLName xml.Name `xml:"http://schemas.openxmlformats.org/drawingml/2006/main prstGeom"`
 	Prst    string   `xml:"prst,attr"`
 }
 
@@ -175,8 +175,19 @@ func WithImageHeight(height int) ImageOption {
 
 // AddImage adds an image to the document
 func (d *Document) AddImage(imagePath string, opts ...ImageOption) error {
+	// Check if file exists first
+	if _, err := os.Stat(imagePath); os.IsNotExist(err) {
+		return fmt.Errorf("image file does not exist: %s", imagePath)
+	}
+
+	// Read image file once
+	imageData, err := os.ReadFile(imagePath)
+	if err != nil {
+		return fmt.Errorf("failed to read image file: %v", err)
+	}
+
 	// Validate image file
-	if err := d.validateImageFile(imagePath); err != nil {
+	if err := d.validateImageFile(imagePath, imageData); err != nil {
 		return err
 	}
 
@@ -190,7 +201,7 @@ func (d *Document) AddImage(imagePath string, opts ...ImageOption) error {
 	}
 
 	// Create image paragraph
-	p, err := d.createImageParagraph(imagePath, options)
+	p, err := d.createImageParagraph(imagePath, imageData, options)
 	if err != nil {
 		return err
 	}
@@ -206,8 +217,19 @@ func (d *Document) AddImageAt(index int, imagePath string, opts ...ImageOption) 
 		return fmt.Errorf("index %d out of range", index)
 	}
 
+	// Check if file exists first
+	if _, err := os.Stat(imagePath); os.IsNotExist(err) {
+		return fmt.Errorf("image file does not exist: %s", imagePath)
+	}
+
+	// Read image file once
+	imageData, err := os.ReadFile(imagePath)
+	if err != nil {
+		return fmt.Errorf("failed to read image file: %v", err)
+	}
+
 	// Validate image file
-	if err := d.validateImageFile(imagePath); err != nil {
+	if err := d.validateImageFile(imagePath, imageData); err != nil {
 		return err
 	}
 
@@ -221,7 +243,7 @@ func (d *Document) AddImageAt(index int, imagePath string, opts ...ImageOption) 
 	}
 
 	// Create image paragraph
-	p, err := d.createImageParagraph(imagePath, options)
+	p, err := d.createImageParagraph(imagePath, imageData, options)
 	if err != nil {
 		return err
 	}
@@ -248,13 +270,8 @@ func (d *Document) GetImageCount() int {
 	return count
 }
 
-// validateImageFile checks if the file exists and is a supported image format
-func (d *Document) validateImageFile(imagePath string) error {
-	// Check if file exists
-	if _, err := os.Stat(imagePath); os.IsNotExist(err) {
-		return fmt.Errorf("image file does not exist: %s", imagePath)
-	}
-
+// validateImageFile validates the image format and content
+func (d *Document) validateImageFile(imagePath string, imageData []byte) error {
 	// Check file extension
 	ext := strings.ToLower(filepath.Ext(imagePath))
 	supportedFormats := []string{".png", ".jpg", ".jpeg", ".gif", ".bmp", ".webp", ".svg", ".ico", ".tiff", ".tif", ".heic", ".heif"}
@@ -263,21 +280,15 @@ func (d *Document) validateImageFile(imagePath string) error {
 		return fmt.Errorf("unsupported image format: %s", ext)
 	}
 
-	// Basic file content validation - check if it's actually an image
-	file, err := os.Open(imagePath)
-	if err != nil {
-		return fmt.Errorf("failed to open image file: %v", err)
-	}
-	defer file.Close()
-
-	// Read first few bytes to check magic numbers
-	header := make([]byte, 8)
-	_, err = file.Read(header)
-	if err != nil {
-		return fmt.Errorf("failed to read image header: %v", err)
+	// Validate file content - check if it's actually an image
+	// Read enough bytes to validate all formats (WebP needs 12 bytes)
+	headerSize := min(12, len(imageData))
+	if headerSize < 8 {
+		return fmt.Errorf("image file too small to validate: %s", imagePath)
 	}
 
 	// Check for common image magic numbers
+	header := imageData[:headerSize]
 	if !isValidImageHeader(header, ext) {
 		return fmt.Errorf("file does not appear to be a valid %s image", ext)
 	}
@@ -306,18 +317,20 @@ func isValidImageHeader(header []byte, ext string) bool {
 		// BMP signature: BM
 		return len(header) >= 2 && header[0] == 0x42 && header[1] == 0x4D
 	case ".webp":
-		// WebP signature: RIFF....WEBP (need to read more bytes)
-		return len(header) >= 4 &&
+		// WebP signature: RIFF[size]WEBP (need to read 12 bytes)
+		return len(header) >= 12 &&
 			header[0] == 0x52 && header[1] == 0x49 && // "RI"
-			header[2] == 0x46 && header[3] == 0x46 // "FF"
+			header[2] == 0x46 && header[3] == 0x46 && // "FF"
+			header[8] == 0x57 && header[9] == 0x45 && // "WE"
+			header[10] == 0x42 && header[11] == 0x50 // "BP"
 	case ".svg":
-		// SVG is XML-based, typically starts with < or whitespace then <
+		// SVG should start with <?xml declaration or <svg tag
 		if len(header) == 0 {
 			return false
 		}
-		// Check for XML declaration or SVG tag
 		headerStr := string(header)
-		return strings.HasPrefix(strings.TrimSpace(headerStr), "<")
+		trimmed := strings.TrimSpace(headerStr)
+		return strings.HasPrefix(trimmed, "<?xml") || strings.HasPrefix(trimmed, "<svg")
 	case ".ico":
 		// ICO signature: 00 00 01 00
 		return len(header) >= 4 &&
@@ -340,13 +353,7 @@ func isValidImageHeader(header []byte, ext string) bool {
 }
 
 // createImageParagraph creates a paragraph containing an image
-func (d *Document) createImageParagraph(imagePath string, options *ImageOptions) (*Paragraph, error) {
-	// Read image file
-	imageData, err := d.readImageFile(imagePath)
-	if err != nil {
-		return nil, err
-	}
-
+func (d *Document) createImageParagraph(imagePath string, imageData []byte, options *ImageOptions) (*Paragraph, error) {
 	// Generate relationship ID
 	relID := fmt.Sprintf("rId%d", d.getNextRelationshipID())
 
@@ -355,11 +362,18 @@ func (d *Document) createImageParagraph(imagePath string, options *ImageOptions)
 	imageIDStr := strconv.Itoa(imageID)
 
 	// Store image data in document files
-	imageFileName := fmt.Sprintf("word/media/image%d%s", imageID, filepath.Ext(imagePath))
+	imageExt := strings.ToLower(filepath.Ext(imagePath))
+	imageFileName := fmt.Sprintf("word/media/image%d%s", imageID, imageExt)
 	if d.files == nil {
 		d.files = make(map[string][]byte)
 	}
 	d.files[imageFileName] = imageData
+
+	// Update Content Types to register the image extension
+	d.registerImageContentType(imageExt)
+
+	// Update relationships to add the image relationship
+	d.addImageRelationship(relID, imageFileName)
 
 	// Convert pixels to EMUs (English Metric Units)
 	// 1 pixel = 9525 EMUs at 96 DPI
@@ -436,22 +450,6 @@ func (d *Document) createImageParagraph(imagePath string, options *ImageOptions)
 	return p, nil
 }
 
-// readImageFile reads an image file and returns its data
-func (d *Document) readImageFile(imagePath string) ([]byte, error) {
-	file, err := os.Open(imagePath)
-	if err != nil {
-		return nil, fmt.Errorf("failed to open image file: %v", err)
-	}
-	defer file.Close()
-
-	data, err := io.ReadAll(file)
-	if err != nil {
-		return nil, fmt.Errorf("failed to read image file: %v", err)
-	}
-
-	return data, nil
-}
-
 // getNextRelationshipID returns the next available relationship ID and increments the counter
 func (d *Document) getNextRelationshipID() int {
 	id := d.nextRelationshipID
@@ -478,19 +476,100 @@ func (d *Document) initializeRelationshipID() {
 	// Check word/_rels/document.xml.rels for existing relationships
 	if relsData, exists := d.files["word/_rels/document.xml.rels"]; exists {
 		relsStr := string(relsData)
-		// Simple parsing to find rId numbers
-		// Look for patterns like rId1, rId2, etc.
-		for i := 1; i <= 1000; i++ { // reasonable upper limit
-			relID := fmt.Sprintf("rId%d", i)
-			if strings.Contains(relsStr, relID) {
-				if i > maxRelID {
-					maxRelID = i
+
+		// Use regex to find all relationship IDs (e.g., rId1, rId2, rId100)
+		re := regexp.MustCompile(`\brId(\d+)\b`)
+		matches := re.FindAllStringSubmatch(relsStr, -1)
+
+		for _, match := range matches {
+			if len(match) > 1 {
+				if id, err := strconv.Atoi(match[1]); err == nil && id > maxRelID {
+					maxRelID = id
 				}
 			}
 		}
 	}
 
 	d.nextRelationshipID = maxRelID + 1
+}
+
+// registerImageContentType adds or updates the content type for an image extension
+func (d *Document) registerImageContentType(ext string) {
+	// Map of image extensions to MIME types
+	mimeTypes := map[string]string{
+		".png":  "image/png",
+		".jpg":  "image/jpeg",
+		".jpeg": "image/jpeg",
+		".gif":  "image/gif",
+		".bmp":  "image/bmp",
+		".webp": "image/webp",
+		".svg":  "image/svg+xml",
+		".ico":  "image/x-icon",
+		".tiff": "image/tiff",
+		".tif":  "image/tiff",
+		".heic": "image/heic",
+		".heif": "image/heif",
+	}
+
+	mimeType, exists := mimeTypes[ext]
+	if !exists {
+		mimeType = "image/png" // Default fallback
+	}
+
+	// Get current content types
+	contentTypesData, ok := d.files["[Content_Types].xml"]
+	if !ok {
+		// Initialize with default if not exists
+		contentTypesData = []byte(`<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">
+	<Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>
+	<Default Extension="xml" ContentType="application/xml"/>
+	<Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/>
+</Types>`)
+	}
+
+	contentTypesStr := string(contentTypesData)
+	extWithoutDot := strings.TrimPrefix(ext, ".")
+
+	// Check if this extension is already registered
+	extensionEntry := fmt.Sprintf(`Extension="%s"`, extWithoutDot)
+	if strings.Contains(contentTypesStr, extensionEntry) {
+		return // Already registered
+	}
+
+	// Add the new Default entry before the closing </Types> tag
+	newEntry := fmt.Sprintf(`	<Default Extension="%s" ContentType="%s"/>`, extWithoutDot, mimeType)
+	contentTypesStr = strings.Replace(contentTypesStr, "</Types>", newEntry+"\n</Types>", 1)
+
+	d.files["[Content_Types].xml"] = []byte(contentTypesStr)
+}
+
+// addImageRelationship adds a relationship entry for an image
+func (d *Document) addImageRelationship(relID, imagePath string) {
+	// Get current relationships
+	relsData, ok := d.files["word/_rels/document.xml.rels"]
+	if !ok {
+		// Initialize with default if not exists
+		relsData = []byte(`<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
+</Relationships>`)
+	}
+
+	relsStr := string(relsData)
+
+	// Check if this relationship already exists
+	if strings.Contains(relsStr, relID) {
+		return // Already exists
+	}
+
+	// Extract target path (remove "word/" prefix for the relationship)
+	target := strings.TrimPrefix(imagePath, "word/")
+
+	// Add the new Relationship entry before the closing </Relationships> tag
+	newRel := fmt.Sprintf(`	<Relationship Id="%s" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/image" Target="%s"/>`, relID, target)
+	relsStr = strings.Replace(relsStr, "</Relationships>", newRel+"\n</Relationships>", 1)
+
+	d.files["word/_rels/document.xml.rels"] = []byte(relsStr)
 }
 
 // GetImageAsBase64 returns an image as base64 string (utility function)
