@@ -58,7 +58,7 @@ func main() {
 
 	// Add summary
 	doc.AddParagraph("") // Empty line
-	doc.AddParagraph(fmt.Sprintf("Document Statistics:", docx.WithBold()))
+	doc.AddParagraph("Document Statistics:", docx.WithBold())
 	doc.AddParagraph(fmt.Sprintf("- Total paragraphs: %d", doc.GetParagraphCount()))
 	doc.AddParagraph(fmt.Sprintf("- Total images: %d", doc.GetImageCount()))
 
@@ -74,7 +74,7 @@ func main() {
 
 	// Demonstrate error handling
 	fmt.Println("\nDemonstrating error handling...")
-	
+
 	// Try to add non-existent image
 	err = doc.AddImage("nonexistent.jpg")
 	if err != nil {
@@ -85,7 +85,7 @@ func main() {
 	textFile := "test.txt"
 	os.WriteFile(textFile, []byte("not an image"), 0644)
 	defer os.Remove(textFile)
-	
+
 	err = doc.AddImage(textFile)
 	if err != nil {
 		fmt.Printf("Expected error for unsupported format: %v\n", err)

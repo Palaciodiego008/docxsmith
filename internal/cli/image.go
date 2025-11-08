@@ -29,7 +29,7 @@ func ImageCommand(args []string) error {
 // imageAddCommand adds an image to the document
 func imageAddCommand(args []string) error {
 	fs := flag.NewFlagSet("image add", flag.ExitOnError)
-	
+
 	var (
 		inputPath  = fs.String("input", "", "Input .docx file path (required)")
 		outputPath = fs.String("output", "", "Output .docx file path (required)")
@@ -86,7 +86,7 @@ func imageAddCommand(args []string) error {
 // imageInsertCommand inserts an image at a specific position
 func imageInsertCommand(args []string) error {
 	fs := flag.NewFlagSet("image insert", flag.ExitOnError)
-	
+
 	var (
 		inputPath  = fs.String("input", "", "Input .docx file path (required)")
 		outputPath = fs.String("output", "", "Output .docx file path (required)")
@@ -153,7 +153,7 @@ func imageInsertCommand(args []string) error {
 // imageCountCommand counts images in the document
 func imageCountCommand(args []string) error {
 	fs := flag.NewFlagSet("image count", flag.ExitOnError)
-	
+
 	var (
 		inputPath = fs.String("input", "", "Input .docx file path (required)")
 	)
@@ -176,6 +176,6 @@ func imageCountCommand(args []string) error {
 	// Get image count
 	count := doc.GetImageCount()
 	fmt.Printf("Document contains %d image(s)\n", count)
-	
+
 	return nil
 }

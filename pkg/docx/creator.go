@@ -11,7 +11,9 @@ func New() *Document {
 			Paragraphs: []Paragraph{},
 			Tables:     []Table{},
 		},
-		files: getDefaultDocxFiles(),
+		files:              getDefaultDocxFiles(),
+		nextImageID:        1, // Start image IDs at 1
+		nextRelationshipID: 1, // Start at 1 for document-level relationships
 	}
 }
 
@@ -54,7 +56,9 @@ func (d *Document) Clone() *Document {
 			Paragraphs: make([]Paragraph, len(d.Body.Paragraphs)),
 			Tables:     make([]Table, len(d.Body.Tables)),
 		},
-		files: make(map[string][]byte),
+		files:              make(map[string][]byte),
+		nextImageID:        d.nextImageID,        // Copy the image ID counter
+		nextRelationshipID: d.nextRelationshipID, // Copy the relationship ID counter
 	}
 
 	// Copy paragraphs

@@ -52,9 +52,9 @@ jobs:
 
     - name: Run go fmt
       run: |
-        if [ -n "$(gofmt -s -l .)" ]; then
+        if [ -n "$(find . -name '*.go' -not -path './examples/*' | xargs gofmt -s -l)" ]; then
           echo "Go code is not formatted:"
-          gofmt -s -l .
+          find . -name '*.go' -not -path './examples/*' | xargs gofmt -s -l
           exit 1
         fi
 

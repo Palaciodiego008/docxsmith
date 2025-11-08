@@ -305,6 +305,35 @@ func isValidImageHeader(header []byte, ext string) bool {
 	case ".bmp":
 		// BMP signature: BM
 		return len(header) >= 2 && header[0] == 0x42 && header[1] == 0x4D
+	case ".webp":
+		// WebP signature: RIFF....WEBP (need to read more bytes)
+		return len(header) >= 4 &&
+			header[0] == 0x52 && header[1] == 0x49 && // "RI"
+			header[2] == 0x46 && header[3] == 0x46 // "FF"
+	case ".svg":
+		// SVG is XML-based, typically starts with < or whitespace then <
+		if len(header) == 0 {
+			return false
+		}
+		// Check for XML declaration or SVG tag
+		headerStr := string(header)
+		return strings.HasPrefix(strings.TrimSpace(headerStr), "<")
+	case ".ico":
+		// ICO signature: 00 00 01 00
+		return len(header) >= 4 &&
+			header[0] == 0x00 && header[1] == 0x00 &&
+			header[2] == 0x01 && header[3] == 0x00
+	case ".tiff", ".tif":
+		// TIFF signature: "II" (little-endian) or "MM" (big-endian)
+		return len(header) >= 4 &&
+			((header[0] == 0x49 && header[1] == 0x49) || // "II"
+				(header[0] == 0x4D && header[1] == 0x4D)) // "MM"
+	case ".heic", ".heif":
+		// HEIC/HEIF signature: starts with ftyp box
+		// Format: [size:4 bytes]["ftyp":4 bytes][brand:4 bytes]
+		return len(header) >= 8 &&
+			header[4] == 0x66 && header[5] == 0x74 && // "ft"
+			header[6] == 0x79 && header[7] == 0x70 // "yp"
 	default:
 		return false
 	}
@@ -321,8 +350,12 @@ func (d *Document) createImageParagraph(imagePath string, options *ImageOptions)
 	// Generate relationship ID
 	relID := fmt.Sprintf("rId%d", d.getNextRelationshipID())
 
+	// Get the next image ID once to ensure consistency
+	imageID := d.getNextImageID()
+	imageIDStr := strconv.Itoa(imageID)
+
 	// Store image data in document files
-	imageFileName := fmt.Sprintf("word/media/image%d%s", d.getNextImageID(), filepath.Ext(imagePath))
+	imageFileName := fmt.Sprintf("word/media/image%d%s", imageID, filepath.Ext(imagePath))
 	if d.files == nil {
 		d.files = make(map[string][]byte)
 	}
@@ -351,8 +384,8 @@ func (d *Document) createImageParagraph(imagePath string, options *ImageOptions)
 				B: "0",
 			},
 			DocPr: &DocPr{
-				ID:   strconv.Itoa(d.getNextImageID()),
-				Name: fmt.Sprintf("Picture %d", d.getNextImageID()),
+				ID:   imageIDStr,
+				Name: fmt.Sprintf("Picture %d", imageID),
 			},
 			CNvGraphic: &CNvGraphic{},
 			Graphic: &Graphic{
@@ -361,7 +394,7 @@ func (d *Document) createImageParagraph(imagePath string, options *ImageOptions)
 					Pic: &Pic{
 						NvPicPr: &NvPicPr{
 							CNvPr: &CNvPr{
-								ID:   strconv.Itoa(d.getNextImageID()),
+								ID:   imageIDStr,
 								Name: filepath.Base(imagePath),
 							},
 							CNvPicPr: &CNvPicPr2{},
@@ -419,15 +452,45 @@ func (d *Document) readImageFile(imagePath string) ([]byte, error) {
 	return data, nil
 }
 
-// getNextRelationshipID returns the next available relationship ID
+// getNextRelationshipID returns the next available relationship ID and increments the counter
 func (d *Document) getNextRelationshipID() int {
-	// Simple implementation - in a real scenario, you'd track existing relationships
-	return len(d.files) + 1
+	id := d.nextRelationshipID
+	d.nextRelationshipID++
+	return id
 }
 
-// getNextImageID returns the next available image ID
+// getNextImageID returns the next available image ID and increments the counter
 func (d *Document) getNextImageID() int {
-	return d.GetImageCount() + 1
+	id := d.nextImageID
+	d.nextImageID++
+	return id
+}
+
+// initializeImageID sets the nextImageID based on existing images in the document
+func (d *Document) initializeImageID() {
+	d.nextImageID = d.GetImageCount() + 1
+}
+
+// initializeRelationshipID sets the nextRelationshipID based on existing relationships in the document
+func (d *Document) initializeRelationshipID() {
+	maxRelID := 0
+
+	// Check word/_rels/document.xml.rels for existing relationships
+	if relsData, exists := d.files["word/_rels/document.xml.rels"]; exists {
+		relsStr := string(relsData)
+		// Simple parsing to find rId numbers
+		// Look for patterns like rId1, rId2, etc.
+		for i := 1; i <= 1000; i++ { // reasonable upper limit
+			relID := fmt.Sprintf("rId%d", i)
+			if strings.Contains(relsStr, relID) {
+				if i > maxRelID {
+					maxRelID = i
+				}
+			}
+		}
+	}
+
+	d.nextRelationshipID = maxRelID + 1
 }
 
 // GetImageAsBase64 returns an image as base64 string (utility function)

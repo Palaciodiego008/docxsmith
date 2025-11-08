@@ -3,6 +3,7 @@ package docx
 import (
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 )
 
@@ -81,7 +82,7 @@ func TestAddImage(t *testing.T) {
 				if err == nil {
 					t.Fatalf("Expected error containing '%s', got nil", tt.errorMsg)
 				}
-				if tt.errorMsg != "" && !contains(err.Error(), tt.errorMsg) {
+				if tt.errorMsg != "" && !strings.Contains(err.Error(), tt.errorMsg) {
 					t.Fatalf("Expected error containing '%s', got '%s'", tt.errorMsg, err.Error())
 				}
 				return
@@ -105,12 +106,12 @@ func TestAddImage(t *testing.T) {
 
 func TestAddImageAt(t *testing.T) {
 	tests := []struct {
-		name           string
-		initialParas   []string
-		insertIndex    int
-		expectedParas  int
-		expectError    bool
-		errorMsg       string
+		name          string
+		initialParas  []string
+		insertIndex   int
+		expectedParas int
+		expectError   bool
+		errorMsg      string
 	}{
 		{
 			name:          "insert at beginning",
@@ -137,18 +138,18 @@ func TestAddImageAt(t *testing.T) {
 			expectedParas: 1,
 		},
 		{
-			name:        "negative index",
+			name:         "negative index",
 			initialParas: []string{"First"},
-			insertIndex: -1,
-			expectError: true,
-			errorMsg:    "index -1 out of range",
+			insertIndex:  -1,
+			expectError:  true,
+			errorMsg:     "index -1 out of range",
 		},
 		{
-			name:        "index too large",
+			name:         "index too large",
 			initialParas: []string{"First"},
-			insertIndex: 5,
-			expectError: true,
-			errorMsg:    "index 5 out of range",
+			insertIndex:  5,
+			expectError:  true,
+			errorMsg:     "index 5 out of range",
 		},
 	}
 
@@ -169,7 +170,7 @@ func TestAddImageAt(t *testing.T) {
 				if err == nil {
 					t.Fatalf("Expected error containing '%s', got nil", tt.errorMsg)
 				}
-				if !contains(err.Error(), tt.errorMsg) {
+				if !strings.Contains(err.Error(), tt.errorMsg) {
 					t.Fatalf("Expected error containing '%s', got '%s'", tt.errorMsg, err.Error())
 				}
 				return
@@ -273,33 +274,33 @@ func TestImageOptions(t *testing.T) {
 
 func TestGetImageCount(t *testing.T) {
 	tests := []struct {
-		name         string
-		imageCount   int
-		textParas    int
+		name          string
+		imageCount    int
+		textParas     int
 		expectedCount int
 	}{
 		{
-			name:         "no images",
-			imageCount:   0,
-			textParas:    3,
+			name:          "no images",
+			imageCount:    0,
+			textParas:     3,
 			expectedCount: 0,
 		},
 		{
-			name:         "single image",
-			imageCount:   1,
-			textParas:    2,
+			name:          "single image",
+			imageCount:    1,
+			textParas:     2,
 			expectedCount: 1,
 		},
 		{
-			name:         "multiple images",
-			imageCount:   5,
-			textParas:    3,
+			name:          "multiple images",
+			imageCount:    5,
+			textParas:     3,
 			expectedCount: 5,
 		},
 		{
-			name:         "only images",
-			imageCount:   3,
-			textParas:    0,
+			name:          "only images",
+			imageCount:    3,
+			textParas:     0,
 			expectedCount: 3,
 		},
 	}
@@ -328,6 +329,104 @@ func TestGetImageCount(t *testing.T) {
 				t.Fatalf("Expected %d images, got %d", tt.expectedCount, count)
 			}
 		})
+	}
+}
+
+func TestImageIDConsistency(t *testing.T) {
+	doc := New()
+	testImagePath := createTestImageFile(t, "test.png", createPNGData())
+	defer os.Remove(testImagePath)
+
+	// Add multiple images and verify IDs are sequential
+	for i := 1; i <= 5; i++ {
+		err := doc.AddImage(testImagePath)
+		if err != nil {
+			t.Fatalf("Failed to add image %d: %v", i, err)
+		}
+
+		// Verify the image was added with correct ID
+		if doc.nextImageID != i+1 {
+			t.Fatalf("Expected nextImageID to be %d, got %d", i+1, doc.nextImageID)
+		}
+	}
+
+	// Verify total count
+	if doc.GetImageCount() != 5 {
+		t.Fatalf("Expected 5 images, got %d", doc.GetImageCount())
+	}
+}
+
+func TestRelationshipIDConsistency(t *testing.T) {
+	doc := New()
+	testImagePath := createTestImageFile(t, "test.png", createPNGData())
+	defer os.Remove(testImagePath)
+
+	// Verify initial relationship ID
+	initialRelID := doc.nextRelationshipID
+	if initialRelID != 1 {
+		t.Fatalf("Expected initial nextRelationshipID to be 1, got %d", initialRelID)
+	}
+
+	// Add multiple images and verify relationship IDs increment
+	for i := 1; i <= 5; i++ {
+		err := doc.AddImage(testImagePath)
+		if err != nil {
+			t.Fatalf("Failed to add image %d: %v", i, err)
+		}
+
+		// Verify the relationship ID was incremented
+		expectedNextRelID := initialRelID + i
+		if doc.nextRelationshipID != expectedNextRelID {
+			t.Fatalf("After adding image %d: expected nextRelationshipID to be %d, got %d", i, expectedNextRelID, doc.nextRelationshipID)
+		}
+	}
+}
+
+func TestImageIDAfterOpen(t *testing.T) {
+	// Create a document with 3 images
+	doc := New()
+	testImagePath := createTestImageFile(t, "test.png", createPNGData())
+	defer os.Remove(testImagePath)
+
+	for i := 0; i < 3; i++ {
+		err := doc.AddImage(testImagePath)
+		if err != nil {
+			t.Fatalf("Failed to add image: %v", err)
+		}
+	}
+
+	// Save the document
+	tmpFile := filepath.Join(os.TempDir(), "test_image_id.docx")
+	defer os.Remove(tmpFile)
+	err := doc.Save(tmpFile)
+	if err != nil {
+		t.Fatalf("Failed to save document: %v", err)
+	}
+
+	// Open the saved document
+	loadedDoc, err := Open(tmpFile)
+	if err != nil {
+		t.Fatalf("Failed to open document: %v", err)
+	}
+
+	// Verify nextImageID was initialized correctly (should be 4, ready for the next image)
+	if loadedDoc.nextImageID != 4 {
+		t.Fatalf("Expected nextImageID to be 4 after loading document with 3 images, got %d", loadedDoc.nextImageID)
+	}
+
+	// Add another image to the loaded document
+	err = loadedDoc.AddImage(testImagePath)
+	if err != nil {
+		t.Fatalf("Failed to add image to loaded document: %v", err)
+	}
+
+	// Verify the new image has ID 4 and nextImageID is now 5
+	if loadedDoc.nextImageID != 5 {
+		t.Fatalf("Expected nextImageID to be 5 after adding image to loaded document, got %d", loadedDoc.nextImageID)
+	}
+
+	if loadedDoc.GetImageCount() != 4 {
+		t.Fatalf("Expected 4 images in loaded document, got %d", loadedDoc.GetImageCount())
 	}
 }
 
@@ -461,18 +560,4 @@ func createBMPData() []byte {
 		0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 		0x00, 0x00, 0x00, 0x00, 0xFF, 0xFF, 0xFF, 0x00,
 	}
-}
-
-func contains(s, substr string) bool {
-	return len(s) >= len(substr) && (s == substr || len(substr) == 0 || 
-		(len(s) > len(substr) && (s[:len(substr)] == substr || 
-		s[len(s)-len(substr):] == substr || 
-		func() bool {
-			for i := 0; i <= len(s)-len(substr); i++ {
-				if s[i:i+len(substr)] == substr {
-					return true
-				}
-			}
-			return false
-		}())))
 }
