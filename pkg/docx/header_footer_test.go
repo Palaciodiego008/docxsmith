@@ -218,11 +218,11 @@ func (suite *HeaderFooterTestSuite) TestSetFooter() {
 // TestHeaderFooterRetrieval tests getting headers and footers
 func (suite *HeaderFooterTestSuite) TestHeaderFooterRetrieval() {
 	tests := []struct {
-		name         string
-		setupHeaders map[HeaderFooterType]string
-		setupFooters map[HeaderFooterType]string
-		getHeader    HeaderFooterType
-		getFooter    HeaderFooterType
+		name              string
+		setupHeaders      map[HeaderFooterType]string
+		setupFooters      map[HeaderFooterType]string
+		getHeader         HeaderFooterType
+		getFooter         HeaderFooterType
 		expectHeaderError bool
 		expectFooterError bool
 	}{
@@ -282,7 +282,7 @@ func (suite *HeaderFooterTestSuite) TestHeaderFooterRetrieval() {
 		suite.Run(tt.name, func() {
 			// Use fresh document for each test
 			doc := New()
-			
+
 			// Setup
 			for hfType, content := range tt.setupHeaders {
 				err := doc.SetHeader(hfType, content)
@@ -325,11 +325,11 @@ func (suite *HeaderFooterTestSuite) TestHeaderFooterRetrieval() {
 // TestHeaderFooterRemoval tests removing headers and footers
 func (suite *HeaderFooterTestSuite) TestHeaderFooterRemoval() {
 	tests := []struct {
-		name           string
-		setupHeaders   []HeaderFooterType
-		setupFooters   []HeaderFooterType
-		removeHeader   HeaderFooterType
-		removeFooter   HeaderFooterType
+		name              string
+		setupHeaders      []HeaderFooterType
+		setupFooters      []HeaderFooterType
+		removeHeader      HeaderFooterType
+		removeFooter      HeaderFooterType
 		expectHeaderError bool
 		expectFooterError bool
 	}{
@@ -380,7 +380,7 @@ func (suite *HeaderFooterTestSuite) TestHeaderFooterRemoval() {
 		suite.Run(tt.name, func() {
 			// Use fresh document for each test
 			doc := New()
-			
+
 			// Setup
 			for _, hfType := range tt.setupHeaders {
 				err := doc.SetHeader(hfType, "Test Header")
@@ -504,10 +504,10 @@ func (suite *HeaderFooterTestSuite) TestHeaderFooterOptions() {
 			validate: func(t *testing.T, hf *HeaderFooter) {
 				require.NotEmpty(t, hf.Paragraphs)
 				require.NotEmpty(t, hf.Paragraphs[0].Runs)
-				
+
 				run := hf.Paragraphs[0].Runs[0]
 				paragraph := hf.Paragraphs[0]
-				
+
 				// Check run properties
 				assert.NotNil(t, run.Props)
 				assert.NotNil(t, run.Props.Bold)
@@ -516,7 +516,7 @@ func (suite *HeaderFooterTestSuite) TestHeaderFooterOptions() {
 				assert.Equal(t, "24", run.Props.Size.Val)
 				assert.NotNil(t, run.Props.Color)
 				assert.Equal(t, "0066CC", run.Props.Color.Val)
-				
+
 				// Check paragraph properties
 				assert.NotNil(t, paragraph.Props)
 				assert.NotNil(t, paragraph.Props.Jc)
@@ -569,20 +569,20 @@ func (suite *HeaderFooterTestSuite) TestComplexScenarios() {
 				// Set all header types
 				err := doc.SetHeader(HeaderTypeDefault, "Company Name", WithHFBold(), WithHFAlignment("center"))
 				require.NoError(t, err)
-				
+
 				err = doc.SetHeader(HeaderTypeFirst, "DRAFT", WithHFItalic(), WithHFTextColor("FF0000"))
 				require.NoError(t, err)
-				
+
 				err = doc.SetHeader(HeaderTypeEven, "Even Page Header", WithHFAlignment("left"))
 				require.NoError(t, err)
 
 				// Set all footer types
 				err = doc.SetFooter(FooterTypeDefault, "Page {PAGE}", WithHFAlignment("center"))
 				require.NoError(t, err)
-				
+
 				err = doc.SetFooter(FooterTypeFirst, "© 2024 Company", WithHFAlignment("center"))
 				require.NoError(t, err)
-				
+
 				err = doc.SetFooter(FooterTypeEven, "Confidential", WithHFAlignment("right"))
 				require.NoError(t, err)
 
@@ -609,11 +609,11 @@ func (suite *HeaderFooterTestSuite) TestComplexScenarios() {
 				// Verify update
 				header, err := doc.GetHeader(HeaderTypeDefault)
 				require.NoError(t, err)
-				
+
 				// Check content is updated
 				assert.NotEmpty(t, header.Paragraphs)
 				assert.NotEmpty(t, header.Paragraphs[0].Runs)
-				
+
 				// Check formatting is applied
 				run := header.Paragraphs[0].Runs[0]
 				assert.NotNil(t, run.Props)

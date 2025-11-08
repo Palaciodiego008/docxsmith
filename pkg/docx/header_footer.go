@@ -19,7 +19,7 @@ const (
 
 // HeaderFooter represents a header or footer element
 type HeaderFooter struct {
-	XMLName    xml.Name    `xml:"hdr,omitempty"`
+	XMLName    xml.Name `xml:"hdr,omitempty"`
 	Type       HeaderFooterType
 	Paragraphs []Paragraph `xml:"p"`
 	IsFooter   bool
@@ -75,7 +75,7 @@ func (hfs *HeaderFooterService) SetHeader(hfType HeaderFooterType, content strin
 	config := hfs.applyOptions(opts...)
 	header := hfs.createHeaderFooter(hfType, content, config, false)
 	hfs.headers[hfType] = header
-	
+
 	return nil
 }
 
@@ -88,7 +88,7 @@ func (hfs *HeaderFooterService) SetFooter(hfType HeaderFooterType, content strin
 	config := hfs.applyOptions(opts...)
 	footer := hfs.createHeaderFooter(hfType, content, config, true)
 	hfs.footers[hfType] = footer
-	
+
 	return nil
 }
 
@@ -168,27 +168,27 @@ func (hfs *HeaderFooterService) applyOptions(opts ...HeaderFooterOption) *Header
 		Font:      "Calibri",
 		Size:      "22", // 11pt
 	}
-	
+
 	for _, opt := range opts {
 		opt(config)
 	}
-	
+
 	return config
 }
 
 func (hfs *HeaderFooterService) createHeaderFooter(hfType HeaderFooterType, content string, config *HeaderFooterConfig, isFooter bool) *HeaderFooter {
 	paragraph := hfs.createStyledParagraph(content, config)
-	
+
 	hf := &HeaderFooter{
 		Type:       hfType,
 		Paragraphs: []Paragraph{paragraph},
 		IsFooter:   isFooter,
 	}
-	
+
 	if isFooter {
 		hf.XMLName = xml.Name{Local: "ftr"}
 	}
-	
+
 	return hf
 }
 
@@ -199,11 +199,11 @@ func (hfs *HeaderFooterService) createStyledParagraph(content string, config *He
 			Content: content,
 		}},
 	}
-	
+
 	// Apply formatting
 	if config.Bold || config.Italic || config.Size != "" || config.Color != "" || config.Font != "" {
 		run.Props = &RProps{}
-		
+
 		if config.Bold {
 			run.Props.Bold = &Bold{}
 		}
@@ -220,18 +220,18 @@ func (hfs *HeaderFooterService) createStyledParagraph(content string, config *He
 			run.Props.RFonts = &RFonts{ASCII: config.Font}
 		}
 	}
-	
+
 	paragraph := Paragraph{
 		Runs: []Run{run},
 	}
-	
+
 	// Apply alignment
 	if config.Alignment != "left" {
 		paragraph.Props = &PProps{
 			Jc: &Jc{Val: config.Alignment},
 		}
 	}
-	
+
 	return paragraph
 }
 
