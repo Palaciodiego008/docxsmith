@@ -90,3 +90,11 @@ func AddTextFormattingFlags(fs *flag.FlagSet) (*bool, *bool, *string, *string, *
 	align := fs.String("align", "", "Alignment (left, center, right, both)")
 	return bold, italic, size, color, align
 }
+
+// HandleImage handles image-related commands
+func HandleImage(args []string) {
+	err := ImageCommand(args)
+	if err != nil {
+		ExitWithError("%v", err)
+	}
+}

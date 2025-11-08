@@ -46,6 +46,10 @@ func Open(filePath string) (*Document, error) {
 		return nil, fmt.Errorf("failed to parse document.xml: %w", err)
 	}
 
+	// Initialize counters based on existing content
+	doc.initializeImageID()
+	doc.initializeRelationshipID()
+
 	return doc, nil
 }
 

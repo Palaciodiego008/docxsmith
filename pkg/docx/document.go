@@ -10,12 +10,14 @@ import (
 
 // Document represents a .docx document structure
 type Document struct {
-	FilePath     string
-	Body         *Body
-	Styles       *Styles
-	ContentTypes *ContentTypes
-	Rels         *Relationships
-	files        map[string][]byte // All files in the docx zip
+	FilePath           string
+	Body               *Body
+	Styles             *Styles
+	ContentTypes       *ContentTypes
+	Rels               *Relationships
+	files              map[string][]byte // All files in the docx zip
+	nextImageID        int               // Counter for the next image ID (for performance)
+	nextRelationshipID int               // Counter for the next relationship ID (for correctness)
 }
 
 // Body represents the document body
@@ -39,6 +41,7 @@ type Run struct {
 	Text    []Text   `xml:"t"`
 	Tab     *Tab     `xml:"tab,omitempty"`
 	Break   *Break   `xml:"br,omitempty"`
+	Drawing *Drawing `xml:"drawing,omitempty"`
 }
 
 // Text represents text content

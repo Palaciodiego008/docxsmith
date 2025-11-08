@@ -32,6 +32,8 @@ func Run(args []string) {
 		HandleExtract(args[1:])
 	case "table":
 		HandleTable(args[1:])
+	case "image":
+		HandleImage(args[1:])
 	case "clear":
 		HandleClear(args[1:])
 	case "info":
@@ -99,6 +101,7 @@ DOCX Commands:
   find        Find text in a DOCX document
   extract     Extract text from a DOCX document
   table       Manipulate tables in a DOCX document
+  image       Add and manage images in DOCX documents
   clear       Clear all content from a DOCX document
   info        Display DOCX document information
 
@@ -133,6 +136,8 @@ Examples:
   docxsmith create -output sample.docx -text "Hello World"
   docxsmith add -input doc.docx -output new.docx -text "New paragraph" -bold
   docxsmith table -input doc.docx -output new.docx -create -rows 3 -cols 4
+  docxsmith image add -input doc.docx -output new.docx -image photo.jpg -width 300 -height 200
+  docxsmith image insert -input doc.docx -output new.docx -image logo.png -at 0 -width 150
 
   # PDF operations
   docxsmith pdf-create -output sample.pdf -text "Hello PDF"

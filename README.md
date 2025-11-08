@@ -33,6 +33,7 @@
 - **Delete** paragraphs or ranges of content
 - **Find** and **replace** text throughout documents
 - **Tables** support (create, modify, delete)
+- **Images** support (add, insert, resize)
 - **Extract** text content from documents
 
 ### PDF Support ✨ NEW
@@ -123,6 +124,15 @@ docxsmith extract -input hello.docx
 
 # Create a table
 docxsmith table -input hello.docx -output table.docx -create -rows 3 -cols 4
+
+# Add an image
+docxsmith image add -input hello.docx -output hello_img.docx -image photo.jpg -width 300 -height 200
+
+# Insert image at specific position
+docxsmith image insert -input hello.docx -output hello_img.docx -image logo.png -at 0 -width 150
+
+# Count images in document
+docxsmith image count -input document.docx
 ```
 
 #### PDF Operations ✨
@@ -215,6 +225,28 @@ text := doc.GetText()
 
 // Get text from specific paragraph
 text, err := doc.GetParagraphText(0)
+```
+
+### Working with Images
+
+```go
+// Add an image with default size (200x150)
+err := doc.AddImage("photo.jpg")
+
+// Add image with custom dimensions
+err := doc.AddImage("logo.png", 
+    docx.WithImageWidth(300), 
+    docx.WithImageHeight(200))
+
+// Insert image at specific paragraph position
+err := doc.AddImageAt(2, "banner.png", 
+    docx.WithImageWidth(400), 
+    docx.WithImageHeight(100))
+
+// Get number of images in document
+imageCount := doc.GetImageCount()
+
+// Supported formats: PNG, JPEG, GIF, BMP
 ```
 
 ### Working with Tables
