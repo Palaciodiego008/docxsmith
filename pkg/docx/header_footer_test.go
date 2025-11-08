@@ -71,7 +71,14 @@ func (suite *HeaderFooterTestSuite) TestSetHeader() {
 			hfType:      HeaderFooterType("invalid"),
 			content:     "Invalid Header",
 			expectError: true,
-			errorMsg:    "invalid header/footer type",
+			errorMsg:    "invalid header type",
+		},
+		{
+			name:        "footer type used for header should fail",
+			hfType:      FooterTypeDefault,
+			content:     "Wrong Type",
+			expectError: true,
+			errorMsg:    "invalid header type",
 		},
 		{
 			name:    "empty content header",
@@ -162,7 +169,14 @@ func (suite *HeaderFooterTestSuite) TestSetFooter() {
 			hfType:      HeaderFooterType("invalid"),
 			content:     "Invalid Footer",
 			expectError: true,
-			errorMsg:    "invalid header/footer type",
+			errorMsg:    "invalid footer type",
+		},
+		{
+			name:        "header type used for footer should fail",
+			hfType:      HeaderTypeDefault,
+			content:     "Wrong Type",
+			expectError: true,
+			errorMsg:    "invalid footer type",
 		},
 		{
 			name:    "footer with multiple formatting",
@@ -464,6 +478,18 @@ func (suite *HeaderFooterTestSuite) TestHeaderFooterOptions() {
 				assert.NotNil(t, paragraph.Props)
 				assert.NotNil(t, paragraph.Props.Jc)
 				assert.Equal(t, "center", paragraph.Props.Jc.Val)
+			},
+		},
+		{
+			name:    "font option",
+			options: []HeaderFooterOption{WithHFFont("Arial")},
+			validate: func(t *testing.T, hf *HeaderFooter) {
+				require.NotEmpty(t, hf.Paragraphs)
+				require.NotEmpty(t, hf.Paragraphs[0].Runs)
+				run := hf.Paragraphs[0].Runs[0]
+				assert.NotNil(t, run.Props)
+				assert.NotNil(t, run.Props.RFonts)
+				assert.Equal(t, "Arial", run.Props.RFonts.ASCII)
 			},
 		},
 		{

@@ -9,12 +9,12 @@ import (
 type HeaderFooterType string
 
 const (
-	HeaderTypeDefault HeaderFooterType = "default"
-	HeaderTypeFirst   HeaderFooterType = "first"
-	HeaderTypeEven    HeaderFooterType = "even"
-	FooterTypeDefault HeaderFooterType = "default"
-	FooterTypeFirst   HeaderFooterType = "first"
-	FooterTypeEven    HeaderFooterType = "even"
+	HeaderTypeDefault HeaderFooterType = "header-default"
+	HeaderTypeFirst   HeaderFooterType = "header-first"
+	HeaderTypeEven    HeaderFooterType = "header-even"
+	FooterTypeDefault HeaderFooterType = "footer-default"
+	FooterTypeFirst   HeaderFooterType = "footer-first"
+	FooterTypeEven    HeaderFooterType = "footer-even"
 )
 
 // HeaderFooter represents a header or footer element
@@ -143,18 +143,23 @@ func (hfs *HeaderFooterService) HasFooter(hfType HeaderFooterType) bool {
 // Private methods
 
 func (hfs *HeaderFooterService) validateHeaderFooterType(hfType HeaderFooterType, isFooter bool) error {
-	validTypes := []HeaderFooterType{
-		HeaderTypeDefault, HeaderTypeFirst, HeaderTypeEven,
-		FooterTypeDefault, FooterTypeFirst, FooterTypeEven,
-	}
-	
-	for _, validType := range validTypes {
-		if hfType == validType {
-			return nil
+	if isFooter {
+		validTypes := []HeaderFooterType{FooterTypeDefault, FooterTypeFirst, FooterTypeEven}
+		for _, validType := range validTypes {
+			if hfType == validType {
+				return nil
+			}
 		}
+		return fmt.Errorf("invalid footer type: %s", hfType)
+	} else {
+		validTypes := []HeaderFooterType{HeaderTypeDefault, HeaderTypeFirst, HeaderTypeEven}
+		for _, validType := range validTypes {
+			if hfType == validType {
+				return nil
+			}
+		}
+		return fmt.Errorf("invalid header type: %s", hfType)
 	}
-	
-	return fmt.Errorf("invalid header/footer type: %s", hfType)
 }
 
 func (hfs *HeaderFooterService) applyOptions(opts ...HeaderFooterOption) *HeaderFooterConfig {
@@ -196,7 +201,7 @@ func (hfs *HeaderFooterService) createStyledParagraph(content string, config *He
 	}
 	
 	// Apply formatting
-	if config.Bold || config.Italic || config.Size != "" || config.Color != "" {
+	if config.Bold || config.Italic || config.Size != "" || config.Color != "" || config.Font != "" {
 		run.Props = &RProps{}
 		
 		if config.Bold {
@@ -210,6 +215,9 @@ func (hfs *HeaderFooterService) createStyledParagraph(content string, config *He
 		}
 		if config.Color != "" {
 			run.Props.Color = &Color{Val: config.Color}
+		}
+		if config.Font != "" {
+			run.Props.RFonts = &RFonts{ASCII: config.Font}
 		}
 	}
 	

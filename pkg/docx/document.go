@@ -67,6 +67,7 @@ type RProps struct {
 	Italic  *Italic  `xml:"i,omitempty"`
 	Size    *Size    `xml:"sz,omitempty"`
 	Color   *Color   `xml:"color,omitempty"`
+	RFonts  *RFonts  `xml:"rFonts,omitempty"`
 }
 
 // Bold represents bold formatting
@@ -89,6 +90,12 @@ type Size struct {
 type Color struct {
 	XMLName xml.Name `xml:"color"`
 	Val     string   `xml:"val,attr"`
+}
+
+// RFonts represents font family
+type RFonts struct {
+	XMLName xml.Name `xml:"rFonts"`
+	ASCII   string   `xml:"ascii,attr"`
 }
 
 // Tab represents a tab character
