@@ -39,6 +39,7 @@ type Run struct {
 	Text    []Text   `xml:"t"`
 	Tab     *Tab     `xml:"tab,omitempty"`
 	Break   *Break   `xml:"br,omitempty"`
+	Drawing *Drawing `xml:"drawing,omitempty"`
 }
 
 // Text represents text content
