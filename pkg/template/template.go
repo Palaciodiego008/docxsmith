@@ -142,34 +142,40 @@ func (t *Template) Render(data Data, opts RenderOptions) (*docx.Document, error)
 
 // replaceParagraphVariables replaces variables in a paragraph
 func (t *Template) replaceParagraphVariables(para *docx.Paragraph, data Data, opts RenderOptions) error {
-	varPattern := regexp.MustCompile(`\{\{\.([a-zA-Z0-9_]+)\}\}`)
+	// Support both {{VARIABLE}} and {{.VARIABLE}} formats
+	varPatterns := []*regexp.Regexp{
+		regexp.MustCompile(`\{\{([a-zA-Z0-9_]+)\}\}`),     // {{VARIABLE}}
+		regexp.MustCompile(`\{\{\.([a-zA-Z0-9_]+)\}\}`),   // {{.VARIABLE}}
+	}
 
 	for i := range para.Runs {
 		for j := range para.Runs[i].Text {
 			text := &para.Runs[i].Text[j]
 
-			// Find all variables
-			matches := varPattern.FindAllStringSubmatch(text.Content, -1)
+			// Try both patterns
+			for _, pattern := range varPatterns {
+				matches := pattern.FindAllStringSubmatch(text.Content, -1)
 
-			for _, match := range matches {
-				if len(match) < 2 {
-					continue
-				}
-
-				varName := match[1]
-				placeholder := match[0]
-
-				// Get value from data
-				value, err := getValueFromData(data, varName)
-				if err != nil {
-					if opts.StrictMode {
-						return fmt.Errorf("variable %s not found", varName)
+				for _, match := range matches {
+					if len(match) < 2 {
+						continue
 					}
-					value = opts.DefaultValue
-				}
 
-				// Replace in text
-				text.Content = strings.ReplaceAll(text.Content, placeholder, fmt.Sprint(value))
+					varName := match[1]
+					placeholder := match[0]
+
+					// Get value from data
+					value, err := getValueFromData(data, varName)
+					if err != nil {
+						if opts.StrictMode {
+							return fmt.Errorf("variable %s not found", varName)
+						}
+						value = opts.DefaultValue
+					}
+
+					// Replace in text
+					text.Content = strings.ReplaceAll(text.Content, placeholder, fmt.Sprint(value))
+				}
 			}
 		}
 	}
@@ -248,16 +254,22 @@ func (t *Template) RenderToFile(data Data, outputPath string, opts RenderOptions
 
 // GetVariables returns all variables found in the template
 func (t *Template) GetVariables() []string {
-	varPattern := regexp.MustCompile(`\{\{\.([a-zA-Z0-9_]+)\}\}`)
+	// Support both {{VARIABLE}} and {{.VARIABLE}} formats
+	varPatterns := []*regexp.Regexp{
+		regexp.MustCompile(`\{\{([a-zA-Z0-9_]+)\}\}`),     // {{VARIABLE}}
+		regexp.MustCompile(`\{\{\.([a-zA-Z0-9_]+)\}\}`),   // {{.VARIABLE}}
+	}
 	varSet := make(map[string]bool)
 
 	// Check paragraphs
 	for _, para := range t.doc.Body.Paragraphs {
 		text := extractParagraphText(&para)
-		matches := varPattern.FindAllStringSubmatch(text, -1)
-		for _, match := range matches {
-			if len(match) >= 2 {
-				varSet[match[1]] = true
+		for _, pattern := range varPatterns {
+			matches := pattern.FindAllStringSubmatch(text, -1)
+			for _, match := range matches {
+				if len(match) >= 2 {
+					varSet[match[1]] = true
+				}
 			}
 		}
 	}
@@ -268,10 +280,12 @@ func (t *Template) GetVariables() []string {
 			for _, cell := range row.Cells {
 				for _, para := range cell.Content {
 					text := extractParagraphText(&para)
-					matches := varPattern.FindAllStringSubmatch(text, -1)
-					for _, match := range matches {
-						if len(match) >= 2 {
-							varSet[match[1]] = true
+					for _, pattern := range varPatterns {
+						matches := pattern.FindAllStringSubmatch(text, -1)
+						for _, match := range matches {
+							if len(match) >= 2 {
+								varSet[match[1]] = true
+							}
 						}
 					}
 				}
