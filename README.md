@@ -34,6 +34,7 @@
 - **Find** and **replace** text throughout documents
 - **Tables** support (create, modify, delete)
 - **Images** support (add, insert, resize)
+- **Headers & Footers** support (default, first page, even page)
 - **Extract** text content from documents
 
 ### PDF Support ✨ NEW
@@ -96,6 +97,10 @@ func main() {
     doc.AddParagraph("This is bold text", docx.WithBold())
     doc.AddParagraph("This is colored text", docx.WithColor("FF0000"))
 
+    // Add headers and footers
+    doc.SetHeader(docx.HeaderTypeDefault, "Company Name", docx.WithHFBold(), docx.WithHFAlignment("center"))
+    doc.SetFooter(docx.FooterTypeDefault, "Page {PAGE}", docx.WithHFAlignment("center"))
+
     // Save the document
     if err := doc.Save("output.docx"); err != nil {
         log.Fatal(err)
@@ -133,6 +138,13 @@ docxsmith image insert -input hello.docx -output hello_img.docx -image logo.png 
 
 # Count images in document
 docxsmith image count -input document.docx
+
+# Add headers and footers
+docxsmith header-footer set-header -input hello.docx -output hello_hf.docx -content "Company Header" -bold -align center
+docxsmith header-footer set-footer -input hello.docx -output hello_hf.docx -content "Page {PAGE}" -align center
+
+# List headers and footers
+docxsmith header-footer list -input document.docx
 ```
 
 #### PDF Operations ✨
@@ -225,6 +237,40 @@ text := doc.GetText()
 
 // Get text from specific paragraph
 text, err := doc.GetParagraphText(0)
+```
+
+### Working with Headers and Footers
+
+```go
+// Set headers
+doc.SetHeader(docx.HeaderTypeDefault, "Company Name", docx.WithHFBold(), docx.WithHFAlignment("center"))
+doc.SetHeader(docx.HeaderTypeFirst, "DRAFT", docx.WithHFItalic(), docx.WithHFTextColor("FF0000"))
+doc.SetHeader(docx.HeaderTypeEven, "Even Page Header", docx.WithHFAlignment("left"))
+
+// Set footers
+doc.SetFooter(docx.FooterTypeDefault, "Page {PAGE} of {NUMPAGES}", docx.WithHFAlignment("center"))
+doc.SetFooter(docx.FooterTypeFirst, "© 2024 Company", docx.WithHFAlignment("center"))
+
+// Check if headers/footers exist
+hasHeader := doc.HasHeader(docx.HeaderTypeDefault)
+hasFooter := doc.HasFooter(docx.FooterTypeDefault)
+
+// Get headers/footers
+header, err := doc.GetHeader(docx.HeaderTypeDefault)
+footer, err := doc.GetFooter(docx.FooterTypeDefault)
+
+// Remove headers/footers
+doc.RemoveHeader(docx.HeaderTypeFirst)
+doc.RemoveFooter(docx.FooterTypeFirst)
+
+// Header/Footer types available:
+// HeaderTypeDefault, HeaderTypeFirst, HeaderTypeEven
+// FooterTypeDefault, FooterTypeFirst, FooterTypeEven
+
+// Formatting options:
+// WithHFBold(), WithHFItalic()
+// WithHFAlignment("center"), WithHFFontSize("24")
+// WithHFTextColor("FF0000"), WithHFFont("Arial")
 ```
 
 ### Working with Images
@@ -553,8 +599,8 @@ The library handles all the complexity of the Office Open XML format while provi
 
 ## Limitations
 
-- Currently focuses on document content (paragraphs and tables)
-- Advanced features like images, charts, and headers/footers are not yet supported
+- Currently focuses on document content (paragraphs, tables, images, headers/footers)
+- Advanced features like charts and complex shapes are not yet supported
 - Complex formatting and styles have limited support
 - Does not preserve all metadata from original documents
 
