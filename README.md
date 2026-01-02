@@ -48,6 +48,8 @@
 ### Format Conversion
 - **Convert** DOCX to PDF with formatting preservation
 - **Convert** PDF to DOCX for editing
+- **External tool support** (LibreOffice, Pandoc) for production-quality conversion
+- **Built-in converters** as fallback for simple documents
 
 ### Additional Features
 - **CLI tool** for command-line operations
@@ -75,6 +77,82 @@ git clone https://github.com/Palaciodiego008/docxsmith.git
 cd docxsmith
 go build -o docxsmith ./cmd/docxsmith
 ```
+
+### PDF Conversion Setup
+
+DocxSmith supports **three conversion modes**:
+
+1. **LibreOffice** (Recommended) - Best quality, handles complex formatting
+2. **Pandoc** - Fast, good for simple documents  
+3. **Built-in** - Fallback for basic conversions (limited formatting)
+
+The tool automatically detects and uses the best available converter.
+
+#### Installing External Tools (Recommended)
+
+**LibreOffice (Best Quality):**
+```bash
+# Ubuntu/Debian
+sudo apt-get update
+sudo apt-get install libreoffice-writer
+
+# macOS
+brew install libreoffice
+
+# Arch Linux
+sudo pacman -S libreoffice-fresh
+```
+
+**Pandoc (Fast Alternative):**
+```bash
+# Ubuntu/Debian
+sudo apt-get install pandoc
+
+# macOS
+brew install pandoc
+
+# Arch Linux
+sudo pacman -S pandoc
+```
+
+**Check Installation:**
+```bash
+# Verify tools are available
+which libreoffice
+which pandoc
+
+# Or use the system check script
+./check_system.sh
+```
+
+#### Conversion Quality Comparison
+
+| Method | DOCX→PDF | PDF→DOCX | Large Files | Complex Formatting |
+|--------|----------|----------|-------------|-------------------|
+| LibreOffice | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐ | ✅ | ✅ |
+| Pandoc | ⭐⭐⭐⭐ | ⭐⭐⭐ | ✅ | ⚠️ |
+| Built-in | ⭐⭐ | ⭐ | ❌ | ❌ |
+
+#### Troubleshooting Conversions
+
+**"Process killed" error:**
+- Install LibreOffice for better memory handling
+- Or reduce file size before conversion
+
+**PDF to DOCX produces empty file:**
+- PDF may be scanned images (no text layer)
+- Install OCR tool first:
+  ```bash
+  sudo apt-get install ocrmypdf
+  ocrmypdf input.pdf output.pdf
+  ./docxsmith convert -input output.pdf -output document.docx
+  ```
+
+**"libreoffice not found" but it's installed:**
+- Add to PATH (macOS):
+  ```bash
+  export PATH="/Applications/LibreOffice.app/Contents/MacOS:$PATH"
+  ```
 
 ## Quick Start
 
