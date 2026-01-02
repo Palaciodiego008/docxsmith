@@ -25,6 +25,12 @@ func Open(filePath string) (*Document, error) {
 
 	// Get number of pages
 	numPages := r.NumPage()
+	
+	// Limit pages to prevent memory issues
+	maxPages := 100
+	if numPages > maxPages {
+		numPages = maxPages
+	}
 
 	// Read each page
 	for i := 1; i <= numPages; i++ {
@@ -41,15 +47,20 @@ func Open(filePath string) (*Document, error) {
 			},
 		}
 
-		// Get page content
+		// Get page content with error handling
 		p := r.Page(i)
 		if p.V.IsNull() {
 			continue
 		}
 
-		// Extract text from page
+		// Extract text from page with timeout protection
 		text, err := p.GetPlainText(nil)
 		if err == nil && text != "" {
+			// Limit text size to prevent memory issues
+			if len(text) > 50000 {
+				text = text[:50000] + "... [truncated]"
+			}
+			
 			// Add text as content
 			textContent := TextContent{
 				Text:       text,

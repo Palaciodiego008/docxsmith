@@ -40,21 +40,31 @@ func HandleConvert(args []string) {
 
 	var err error
 
-	switch {
-	case inputExt == ".docx" && outputExt == ".pdf":
-		fmt.Println("Converting DOCX to PDF...")
-		err = converter.ConvertDocxToPDF(*input, *output, opts)
+	// Try external tools first (more reliable)
+	if converter.IsLibreOfficeAvailable() {
+		fmt.Println("Using LibreOffice for conversion...")
+		err = converter.ConvertWithLibreOffice(*input, *output)
+	} else if converter.IsPandocAvailable() {
+		fmt.Println("Using Pandoc for conversion...")
+		err = converter.ConvertWithPandoc(*input, *output)
+	} else {
+		// Fallback to built-in converters
+		switch {
+		case inputExt == ".docx" && outputExt == ".pdf":
+			fmt.Println("Converting DOCX to PDF (built-in)...")
+			err = converter.ConvertDocxToPDF(*input, *output, opts)
 
-	case inputExt == ".pdf" && outputExt == ".docx":
-		fmt.Println("Converting PDF to DOCX...")
-		err = converter.ConvertPDFToDocx(*input, *output, opts)
+		case inputExt == ".pdf" && outputExt == ".docx":
+			fmt.Println("Converting PDF to DOCX (built-in)...")
+			err = converter.ConvertPDFToDocx(*input, *output, opts)
 
-	default:
-		fmt.Fprintf(os.Stderr, "Error: Unsupported conversion from %s to %s\n", inputExt, outputExt)
-		fmt.Fprintln(os.Stderr, "Supported conversions:")
-		fmt.Fprintln(os.Stderr, "  - .docx to .pdf")
-		fmt.Fprintln(os.Stderr, "  - .pdf to .docx")
-		os.Exit(1)
+		default:
+			fmt.Fprintf(os.Stderr, "Error: Unsupported conversion from %s to %s\n", inputExt, outputExt)
+			fmt.Fprintln(os.Stderr, "Supported conversions:")
+			fmt.Fprintln(os.Stderr, "  - .docx to .pdf")
+			fmt.Fprintln(os.Stderr, "  - .pdf to .docx")
+			os.Exit(1)
+		}
 	}
 
 	if err != nil {
