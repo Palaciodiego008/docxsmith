@@ -38,6 +38,8 @@ func Run(args []string) {
 		HandleClear(args[1:])
 	case "info":
 		HandleInfo(args[1:])
+	case "watermark":
+		HandleWatermark(args[1:])
 
 	// PDF commands
 	case "pdf-create":
@@ -94,16 +96,17 @@ Usage:
   docxsmith <command> [options]
 
 DOCX Commands:
-  create      Create a new DOCX document
-  add         Add content to a DOCX document
-  delete      Delete content from a DOCX document
-  replace     Replace text in a DOCX document
-  find        Find text in a DOCX document
-  extract     Extract text from a DOCX document
-  table       Manipulate tables in a DOCX document
-  image       Add and manage images in DOCX documents
-  clear       Clear all content from a DOCX document
-  info        Display DOCX document information
+   create      Create a new DOCX document
+   add         Add content to a DOCX document
+   delete      Delete content from a DOCX document
+   replace     Replace text in a DOCX document
+   find        Find text in a DOCX document
+   extract     Extract text from a DOCX document
+   table       Manipulate tables in a DOCX document
+   image       Add and manage images in DOCX documents
+   watermark   Add or remove watermarks from DOCX documents
+   clear       Clear all content from a DOCX document
+   info        Display DOCX document information
 
 PDF Commands:
   pdf-create  Create a new PDF document
@@ -132,12 +135,14 @@ Utility:
   help        Show this help message
 
 Examples:
-  # DOCX operations
-  docxsmith create -output sample.docx -text "Hello World"
-  docxsmith add -input doc.docx -output new.docx -text "New paragraph" -bold
-  docxsmith table -input doc.docx -output new.docx -create -rows 3 -cols 4
-  docxsmith image add -input doc.docx -output new.docx -image photo.jpg -width 300 -height 200
-  docxsmith image insert -input doc.docx -output new.docx -image logo.png -at 0 -width 150
+   # DOCX operations
+   docxsmith create -output sample.docx -text "Hello World"
+   docxsmith add -input doc.docx -output new.docx -text "New paragraph" -bold
+   docxsmith table -input doc.docx -output new.docx -create -rows 3 -cols 4
+   docxsmith image add -input doc.docx -output new.docx -image photo.jpg -width 300 -height 200
+   docxsmith image insert -input doc.docx -output new.docx -image logo.png -at 0 -width 150
+   docxsmith watermark add -input doc.docx -output watermarked.docx -text "DRAFT"
+   docxsmith watermark remove -input watermarked.docx -output clean.docx
 
   # PDF operations
   docxsmith pdf-create -output sample.pdf -text "Hello PDF"
